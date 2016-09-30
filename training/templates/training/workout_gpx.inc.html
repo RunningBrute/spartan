@@ -59,7 +59,6 @@
 	var points = {{ gpx.points_as_json|safe }};
         var hr_data = points.map(function (point){ return point.hr; });
 	var cad_data = points.map(function (point){ return point.cad; });
-	var one_minute_in_milliseconds = 1000.0*60.0;
 	var time_data = points.map(function (point)
 		{
 			var started_time = new Date(points[0].time).getTime();
