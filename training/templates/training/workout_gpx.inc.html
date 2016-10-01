@@ -34,13 +34,13 @@
     var polyline = L.polyline(polyline_points, {color: 'red'}).addTo(map);
     map.fitBounds(polyline.getBounds());
 </script>
- 
-{% if gpx.average_hr %}
+
 {% block content %}
 
 <section>
     <canvas id="charts" width="8" height="1"></canvas>
     <canvas id="pace" width="8" height="1"></canvas>
+
     <script>
         Chart.defaults.global.elements.rectangle.borderColor = 'rgba(207, 74, 8, 0.8)';
         Chart.defaults.global.elements.rectangle.backgroundColor = 'rgba(207, 74, 8, 0.8)';
@@ -124,6 +124,8 @@
             avg_cad_data.fill({{ gpx.average_cad }});
         {% endif %}
 
+	{% if gpx.average_hr %}
+
         ctx = $('#charts');
         chart = new Chart(ctx, {
             type: "line",
@@ -185,7 +187,9 @@
                     }]
                 }
             }
-        }); 
+        });
+
+	{% endif %}
 
 	Chart.defaults.bar.scales.xAxes[0].categoryPercentage = 0.9;
 	Chart.defaults.bar.scales.xAxes[0].barPercentage = 1;
@@ -237,5 +241,4 @@
 </section>
 
 {% endblock %}
-{% endif %}
 
