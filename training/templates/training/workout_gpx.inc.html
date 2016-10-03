@@ -278,33 +278,34 @@
 
     for (i = 1; i < coordinates.length; i++)
     {
-		lat1 = coordinates[i-1][0];
-		lon1 = coordinates[i-1][1];
-		lat2 = coordinates[i][0];
-		lon2 = coordinates[i][1];
+	lat1 = coordinates[i-1][0];
+	lon1 = coordinates[i-1][1];
+	lat2 = coordinates[i][0];
+	lon2 = coordinates[i][1];
 
-		if (distt < 1000)
-		{
-			distt = distt + distance(lat2, lon2, lat1, lon1);
-			time = time + (time_data[i] - time_data[i-1]);
-            points_num = points_num + 1;
-		}
-		else
-		{
-            avg_time = time / 1;
-			single_km_times_2.push(time);
-			distt = 0;
-			time = 0;
-            points_num = 1;
-		}
-	}
-    	single_km_times_2 = single_km_times_2.map(function (time){ return time / 60; });  
-
-    km_ids_2 = [];
-	for (i = 0; i < single_km_times_2.length; i++)
+	if (distt < 1000)
 	{
-		km_ids_2.push (i + 1);
+	    distt = distt + distance(lat2, lon2, lat1, lon1);
+	    time = time + (time_data[i] - time_data[i-1]);
+            points_num = points_num + 1;
 	}
+	else
+	{
+            avg_time = time / 1;
+	    single_km_times_2.push(time);
+	    distt = 0;
+	    time = 0;
+            points_num = 1;
+	}
+    }
+
+    single_km_times_2 = single_km_times_2.map(function (time){ return time / 60; });
+    km_ids_2 = [];
+
+    for (i = 0; i < single_km_times_2.length; i++)
+    {
+        km_ids_2.push (i + 1);
+    }
 
     var min_y = min_max(single_km_times)[0]; 
     var max_y = min_max(single_km_times)[1];
