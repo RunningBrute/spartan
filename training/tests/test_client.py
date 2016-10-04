@@ -32,27 +32,37 @@ class ClienStrengthTestCase(TestCase):
     def _expect_to_be_logged_in(self):
         self._post('/login/', {'username': 'grzegorz', 'password': 'z'})
 
-    def _expect_workout_to_be_created(self):
+    def _start_workout(self):
         workout = self._get('/start_workout').context['workout']
         self._expect_workout_page(workout.id)
+        return workout
 
     def _get_statistics_from_dashboard(self):
         return self._get('/dashboard').context['statistics']
 
     def test_create_workout_and_delete_it(self):
         self._expect_to_be_logged_in()
-        self._expect_workout_to_be_created()
-
-        statistics = self._get_statistics_from_dashboard()
-        workout = statistics.previous_workouts()[0]
+        workout = self._start_workout()
 
         self._post('/delete_workout/{}/'.format(workout.id))
 
         self._expect_workout_page(workout.id, status_code=404)
 
+    def _do_some_pushups(self, series):
+        workout = self._start_workout()
+
+        self._post('/add_excercise/{}/'.format(workout.id), {'name': 'push-up'})
+
+        excercise = workout.excercise_set.latest('pk')
+
+        for reps in series:
+            self._post('/add_reps/{}/'.format(excercise.id), {'reps': reps})
+
+        self._post('/finish_workout/{}'.format(workout.id))
+
     def test_add_some_excercises_and_reps(self):
         self._expect_to_be_logged_in()
-        self._expect_workout_to_be_created()
+        self._start_workout()
 
         statistics = self._get_statistics_from_dashboard()
         workout = statistics.previous_workouts()[0]
@@ -112,7 +122,7 @@ class ClienStrengthTestCase(TestCase):
 
         gpx_workout = workout.gpx_set.get()
         self.assertEqual("running", gpx_workout.activity_type.lower())
-        self.assertEqual(4, gpx_workout.length_2d)
+        self.assertEqual(4, gpx_workout.distance)
 
         statistics = self._get_statistics_from_dashboard()
         self.assertEqual('4m', statistics.total_km())
@@ -136,7 +146,25 @@ class ClienStrengthTestCase(TestCase):
 
     def test_strength_workout_type_when_starting_workout(self):
         self._expect_to_be_logged_in()
-        self._expect_workout_to_be_created()
+        self._start_workout()
 
         workout = self._get_latest_workout_from_dashboard()
         self.assertEqual('strength', workout.workout_type)
+
+    def test_most_popular_excercises(self):
+        self._expect_to_be_logged_in()
+
+        self._import_gpx('3p_simplest.gpx')
+        self._import_gpx('3p_simplest_2.gpx')
+        self._import_gpx('3p_without_points.gpx')
+
+        self._import_gpx('3p_cycling.gpx')
+
+        self._do_some_pushups([2, 4, 8])
+
+        statistics = self._get_statistics_from_dashboard()
+        excercises = statistics.most_popular_workouts()
+
+        self.assertEqual(('running', 3, units.Volume(meters=8)), excercises[0])
+        self.assertEqual(('cycling', 1, units.Volume(meters=4)), excercises[1])
+        self.assertEqual(('push-up', 1, units.Volume(reps=14)), excercises[2])

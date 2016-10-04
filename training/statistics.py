@@ -89,24 +89,43 @@ class Statistics:
         return Reps.objects.filter(excercise__workout__user=self.user).aggregate(Sum('reps'))['reps__sum']
 
     def total_km(self):
-        meters = Gpx.objects.filter(workout__user=self.user).aggregate(Sum('length_2d'))['length_2d__sum']
+        meters = Gpx.objects.filter(workout__user=self.user).aggregate(Sum('distance'))['distance__sum']
         return units.km_from_m(meters)
 
-    def _volume(self, workout_type):
-        return 0
+    def _total_distance(self, workout_type):
+        meters = Gpx.objects.filter(workout__user=self.user,
+                                    activity_type=workout_type).aggregate(value=Sum('distance'))['value']
+
+        return units.Volume(meters=meters)
+
+    def _total_reps(self, excercise_name):
+        reps = Reps.objects.filter(excercise__workout__user=self.user,
+                                   excercise__name=excercise_name).aggregate(value=Sum('reps'))['value']
+
+        return units.Volume(reps=reps if reps else 0)
 
     def most_popular_workouts(self):
-        workouts = Gpx.objects \
+        gps_workouts = Gpx.objects \
                           .filter(workout__user=self.user) \
                           .values_list('activity_type') \
                           .annotate(count=Count('activity_type')) \
                           .order_by('-count')
 
+        strength_workouts = Excercise.objects \
+                                     .filter(workout__user=self.user) \
+                                     .values_list('name') \
+                                     .annotate(count=Count('name')) \
+                                     .order_by('-count')
+
         def decorate_with_volume(workout):
             workout_type, count = workout
-            return workout_type, count, self._volume(workout_type)
+            return workout_type.lower(), count, self._total_distance(workout_type)
 
-        return map(decorate_with_volume, workouts)
+        def decorate_strength_workout(workout):
+            excercise_name, count = workout
+            return excercise_name.lower(), count, self._total_reps(excercise_name)
+
+        return list(map(decorate_with_volume, gps_workouts)) + list(map(decorate_strength_workout, strength_workouts))
 
     def weeks(self, start=datetime.datetime.utcnow()):
 
