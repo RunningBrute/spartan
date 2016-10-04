@@ -11,15 +11,12 @@
 
 {%block content%}
 
-<h2>quick stats</h2>
+<h2>your favourites</h2>
 <section>
-    <dl><dt>total reps</dt><dd>{{ statistics.total_reps }}</dd></dl>
-    <dl><dt>total km</dt><dd>{{ statistics.total_km }}</dd></dl>
-
-    {% for workout_type,count,volume in statistics.most_popular_workouts %}
+    {% for excercise in statistics.most_popular_workouts|slice:":10" %}
         <dl>
-            <dt>{{ workout_type }} <strong>{{ count }}</strong></dt>
-            <dd>{{ volume }}</dd>
+            <dt>{{ excercise.name }} <strong>{{ excercise.count }}</strong></dt>
+            <dd>{{ excercise.volume }}</dd>
         </dl>
     {% endfor %}
 </section>
@@ -42,7 +39,7 @@
 
 {% paginate 4 statistics.weeks as weeks %}
 
-<section>
+<section class="pagination">
     {% show_pages %}
 </section>
 
@@ -76,7 +73,7 @@
     </section>
 {% endfor %}
 
-<section>
+<section class="pagination">
     {% show_pages %}
 </section>
 

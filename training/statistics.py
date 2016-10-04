@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from .models import *
 from . import units
+from . import dates
 
 
 def workouts_time_bounds(user):
@@ -21,27 +22,6 @@ def workouts_time_bounds(user):
     except Exception as e:
         logging.warn(str(e))
         return None, None
-
-
-def week_range(number:int=None, end=None, start=timezone.now()):
-    if number is None and end is None:
-        raise AttributeError("number or end parameter must be provided")
-
-    week_start = arrow.get(start).floor('week').datetime
-    week = datetime.timedelta(weeks=1)
-    second = datetime.timedelta(seconds=1)
-
-    while True:
-        yield (week_start, week_start + week - second)
-        week_start -= week
-
-        if end is not None and week_start < end:
-            break
-
-        if number is not None:
-            number -= 1
-            if number <= 0:
-                break
 
 
 class Day:
@@ -96,7 +76,7 @@ class Statistics:
         meters = Gpx.objects.filter(workout__user=self.user,
                                     activity_type=workout_type).aggregate(value=Sum('distance'))['value']
 
-        return units.Volume(meters=meters)
+        return units.Volume(meters=meters if meters else 0)
 
     def _total_reps(self, excercise_name):
         reps = Reps.objects.filter(excercise__workout__user=self.user,
@@ -117,15 +97,22 @@ class Statistics:
                                      .annotate(count=Count('name')) \
                                      .order_by('-count')
 
-        def decorate_with_volume(workout):
+        def decorate_gps_workout(workout):
             workout_type, count = workout
-            return workout_type.lower(), count, self._total_distance(workout_type)
+            return {'name': workout_type.lower(),
+                    'count': count,
+                    'volume': self._total_distance(workout_type)}
 
         def decorate_strength_workout(workout):
             excercise_name, count = workout
-            return excercise_name.lower(), count, self._total_reps(excercise_name)
+            return {'name': excercise_name.lower(),
+                    'count': count,
+                    'volume': self._total_reps(excercise_name)}
 
-        return list(map(decorate_with_volume, gps_workouts)) + list(map(decorate_strength_workout, strength_workouts))
+        excercises = (list(map(decorate_gps_workout, gps_workouts))
+                    + list(map(decorate_strength_workout, strength_workouts)))
+
+        return sorted(excercises, key=lambda e: e['count'], reverse=True)
 
     def weeks(self, start=datetime.datetime.utcnow()):
 
@@ -139,21 +126,9 @@ class Statistics:
         if end_time is None:
             return []
 
-        result = list(map(make_week, week_range(start=start, end=end_time)))
+        result = list(map(make_week, dates.week_range(start=start, end=end_time)))
 
         return result
-
-    def reps_per_week(self):
-        def reps_in_range(time_range):
-            begin, end = time_range
-            reps = Reps.objects.filter(excercise__workout__user=self.user,
-                                       excercise__time_started__gt=begin,
-                                       excercise__time_started__lt=end).aggregate(Sum('reps'))['reps__sum']
-
-            return {'time': '{:%d.%m}'.format(end),
-                    'value': 0 if reps is None else reps}
-
-        return list(map(reps_in_range, week_range(5)))
 
     def previous_workouts(self, begin=None, end=None):
         if begin is not None and end is not None:
