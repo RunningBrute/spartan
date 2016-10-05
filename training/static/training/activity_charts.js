@@ -28,6 +28,36 @@ function min_max(array)
 	return [min, max];
 }
 
+function get_single_intervals_time(points, time_data, interval_length_in_m)
+{
+    var coordinates = points.map(function (point){ return [point.lat, point.lon]; });
+    var distt = 0;
+    var time = 0.0;
+    var intervals_time = [];
+
+    for (i = 1; i < coordinates.length; i++)
+    {
+        lat1 = coordinates[i-1][0];
+        lon1 = coordinates[i-1][1];
+        lat2 = coordinates[i][0];
+        lon2 = coordinates[i][1];
+
+	    if (distt < interval_length_in_m)
+	    {
+	        distt = distt + distance(lat2, lon2, lat1, lon1);
+	        time = time + (time_data[i] - time_data[i-1]);
+	    }
+	    else
+	    {
+            intervals_time.push(time);
+	        distt = 0;
+	        time = 0;
+	    }
+    }
+
+    return intervals_time;
+}
+
 function set_chart_globals()
 {
     Chart.defaults.global.elements.rectangle.borderColor = 'rgba(207, 74, 8, 0.8)';
@@ -66,31 +96,7 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
     avg_hr_data = [];
     avg_cad_data = [];
 
-    var coordinates = points.map(function (point){ return [point.lat, point.lon]; });
-    var single_km_times = [];
-    var single_km_times_2 = [];
-    var distt = 0;
-    var time = 0.0;
-
-    for (i = 1; i < coordinates.length; i++)
-    {
-        lat1 = coordinates[i-1][0];
-        lon1 = coordinates[i-1][1];
-        lat2 = coordinates[i][0];
-        lon2 = coordinates[i][1];
-
-	    if (distt < 1000)
-	    {
-	        distt = distt + distance(lat2, lon2, lat1, lon1);
-	        time = time + (time_data[i] - time_data[i-1]);
-	    }
-	    else
-	    {
-            single_km_times.push(time);
-	        distt = 0;
-	        time = 0;
-	    }
-    }
+    var single_km_times = get_single_intervals_time(points, time_data, 1000);
 
     if (average_hr)
     {
@@ -224,32 +230,7 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
     });
 
     var points_num = 1;
-
-    var distt = 0;
-    var time = 0.0;
-
-    for (i = 1; i < coordinates.length; i++)
-    {
-	    lat1 = coordinates[i-1][0];
-	    lon1 = coordinates[i-1][1];
-	    lat2 = coordinates[i][0];
-	    lon2 = coordinates[i][1];
-
-	    if (distt < 1000)
-	    {
-	        distt = distt + distance(lat2, lon2, lat1, lon1);
-	        time = time + (time_data[i] - time_data[i-1]);
-            points_num = points_num + 1;
-	    }
-	    else
-	    {
-            avg_time = time / 1;
-	        single_km_times_2.push(time);
-	        distt = 0;
-	        time = 0;
-            points_num = 1;
-	    }
-    }
+    var single_km_times_2 = get_single_intervals_time(points, time_data, 500);
 
     single_km_times_2 = single_km_times_2.map(function (time){ return time / 60; });
     km_ids_2 = [];
@@ -259,11 +240,14 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
         km_ids_2.push (i + 1);
     }
 
-    var min_y = min_max(single_km_times)[0];
-    var max_y = min_max(single_km_times)[1];
+    var min_y = min_max(single_km_times_2)[0];
+    var max_y = min_max(single_km_times_2)[1];
 
     min_y = min_y - scale * min_y;
     max_y = max_y + scale * max_y;
+
+    pace_options.scales.yAxes[0].ticks.max = max_y;
+    pace_options.scales.yAxes[0].ticks.min = min_y;
 
     ctx = $(pace2_id);
     pace2_chart = new Chart(ctx,
