@@ -1,8 +1,13 @@
+var activity_charts = require("./activity_charts");
 var assert = require('assert');
+
 describe('Array', function() {
-  describe('#indexOf()', function() {
-    it('should return -1 when the value is not present', function() {
-      assert.equal(-1, [1,2,3].indexOf(4));
+  describe('min_max)', function() {
+    
+    var empty_array = min_max([]);
+
+    it('should return [None, None] array when the array is not present', function() {
+      assert.equal([None, None], empty_array);
     });
   });
 });

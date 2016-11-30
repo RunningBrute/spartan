@@ -194,6 +194,16 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
     min_y = min_y - scale * min_y;
     max_y = max_y + scale * max_y;
 
+    var pace_options= {};
+
+    pace_options.scales.yAxes[0].gridLines.color = "rgba(207, 74, 8, 0.1)";
+    pace_options.scales.yAxes[0].ticks.max = max_y;
+    pace_options.scales.yAxes[0].ticks.mim = min_y;
+    pace_options.scales.xAxes[0].gridLines.color = "rgba(207, 74, 8, 0.1)";
+    pace_options.scales.xAxes[0].ticks.maxTicksLimit = 15;
+    pace_options.scales.xAxes[0].ticks.minRotation = 0;
+    pace_options.scales.xAxes[0].ticks.maxRotation = 0;
+/*
     var pace_options =
     {
         scales:
@@ -210,7 +220,7 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
             }]
         }
     };
-
+*/
     ctx = $(pace1_id);
     pace1_chart = new Chart(ctx,
     {
