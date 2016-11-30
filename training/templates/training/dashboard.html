@@ -11,11 +11,12 @@
 
 {%block content%}
 
-<h2>your favourites</h2>
-<section>
-    {% for excercise in statistics.most_popular_workouts|slice:":10" %}
-        <dl>
-            <dt>{{ excercise.name }} <strong>{{ excercise.count }}</strong></dt>
+<h2>5 favourites this month | <a href="{% url 'statistics_this_month' %}">more</a></h2>
+<section class="quick_stats">
+    {% for excercise in statistics.favourites_this_month|slice:":5" %}
+        <dl class="metric">
+            <dt>{{ excercise.name }}</dt>
+            <dd>{{ excercise.count }} times</dd>
             <dd>{{ excercise.volume }}</dd>
         </dl>
     {% endfor %}
@@ -47,15 +48,20 @@
     <h2>{{ week.start_time.date }}  .. {{ week.end_time.date }}</h2>
     <section>
         {% for day in week.days %}
-            <div class="day-container {{ day.workouts|yesno:"active_day,inactive_day" }}">
-                <div class="day-name">
+            <div class="day {{ day.workouts|yesno:"active,inactive" }}">
+                <div class="name">
                     {{ day.start_time|date:"D" }}
                 </div>
-                <div class="day-content">
+                <div class="content">
                     {% for workout in day.workouts %}
                         <a href="{% url 'workout' workout.id %}">
                             <dl>
-                                <dt>{{ workout.started|date:"h:m" }} {{ workout.workout_type }}</dt>
+                                <dt>
+                                    <span class="note">
+                                        {{ workout.started|date:"P" }}
+                                    </span>
+                                    {{ workout.workout_type }}
+                                </dt>
                                 <dd>
                                     {{ workout.volume }}
                                     <span class="note">

@@ -29,47 +29,72 @@ $background-color: black;
     border-radius: .3em;
 }
 
+@mixin button($color) {
+    @include text1;
+    color: lighten($color, 70%);
+    display: inline-block;
+
+    background: linear-gradient(to top,
+                                lighten($color, 8%) 0%,
+                                darken($color, 8%) 100%);
+
+    padding: 0.5em;
+    border: 1px solid darken($color, 30%);
+    border-radius: 5%;
+
+    &:hover {
+        $darker: darken($color, 5%);
+        background: linear-gradient(to top,
+                                    lighten($darker, 8%) 0%,
+                                    darken($darker, 8%) 100%);
+    }
+}
+
+@mixin important-value {
+    background-color: $secondary_color;
+    color: white;
+    border-radius: 1em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    touch-action: pan-y pinch-zoom double-tap-zoom;
-    color: invert($background-color);
 }
 
 body {
     background-color: $background-color;
+    background-image: url(background.svg);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    color: white;
     font-family: Calibri, 'Open Sans', sans-serif;
     font-weight: normal;
 }
 
 a {
     text-decoration: none;
+    color: darken(white, 20%);
 }
 
 .header {
-    font-weight: 100;
-    font-size: 1.2em;
-
     background-color: $primary_color;
+    padding: 0.2em;
 
-    h1,
-    h1 a {
-        letter-spacing: -2px;
-        font-size: 1.2em;
-        text-shadow: 0px 0px 3px darken($primary_color, 20%);
-        color: lighten($primary_color, 20%);
-    }
-
-    h1,
-    .user {
-        display: inline;
+    div {
+        display: inline-block;
         vertical-align: middle;
-        padding: 0.4em;
     }
 
-    .user {
-        font-size: smaller;
+    img {
+        display: block;
+        width: 24px;
+        height: 24px;
     }
 }
 
@@ -95,7 +120,7 @@ table {
     @include text2;
 
     th {
-        background-color: lighten($background-color, 10%);
+        background-color: lighten($background-color, 5%);
         padding: 0.3em;
         text-align: left;
         font-weight: normal;
@@ -104,8 +129,12 @@ table {
 
     td, th {
         padding: 0.5em;
-        border-bottom: 1px solid lighten($background-color, 10%);
-        border-right: 1px solid lighten($background-color, 10%);
+        border-bottom: 1px solid lighten($background-color, 5%);
+        border-right: 1px solid lighten($background-color, 5%);
+
+        &:first-of-type {
+            border-left: 1px solid lighten($background-color, 5%);
+        }
     }
 }
 
@@ -123,54 +152,8 @@ dt,
     display: block;
 }
 
-dd {
-    @include text2;
-}
-
-dt,
-label {
-    margin-bottom: 0.2em;
-    display: inline-block;
-    width: 5em;
-    vertical-align: middle;
-}
-
-@mixin important-value {
-    background-color: $secondary_color;
-    border-radius: 1em;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    margin-left: 0.5em;
-    margin-right: 0.5em;
-}
-
-strong
-{
+strong {
     @include important-value;
-}
-
-@mixin button($color) {
-    text-shadow: 1px 1px 1px #000;
-    font-weight: 100;
-    color: lighten($color, 70%);
-
-    display: inline-block;
-
-    background: linear-gradient(to top,
-                                lighten($color, 8%) 0%,
-                                darken($color, 8%) 100%);
-
-    border-color: darken($color, 30%);
-    padding: 0.5em;
-    border: 1px solid darken($color, 30%);
-    border-radius: 0.2em;
-
-    &:hover {
-        $darker: darken($color, 5%);
-        background: linear-gradient(to top,
-                                    lighten($darker, 8%) 0%,
-                                    darken($darker, 8%) 100%);
-    }
 }
 
 form {
@@ -178,6 +161,20 @@ form {
     margin-right: 0.5em;
     display: inline-block;
     width: auto;
+
+    .helptext {
+        @include text3;
+        margin-left: 1em;
+    }
+
+    li {
+        margin-bottom: 1em;
+    }
+
+    label {
+        display: block;
+        @include text2;
+    }
 
     input[type="submit"]::-moz-focus-inner {
         border: 0;
@@ -194,10 +191,16 @@ form {
     }
 
     input[type="text"],
+    input[type="file"],
     input[type="password"],
-    input[type="number"] {
-        background: linear-gradient(0deg, lighten($background-color, 5%) 0%, darken($background-color, 5%) 100%);
+    input[type="number"],
+    select {
+        color: white;
+        background: linear-gradient(0deg, lighten($background-color, 10%) 0%,
+                                          lighten($background-color, 5%) 100%);
         border: 1px solid black;
+        border-radius: 0.2em;
+        padding: 0.3em;
     }
 
     input[type="submit"] {
@@ -215,6 +218,18 @@ form {
     input[type="number"] {
         width: 4em;
     }
+
+    // these classes are set from JS because css can't
+    // select a label before input
+    .file_input_label {
+        @include button($primary_color);
+
+    }
+
+    .file_input {
+        position: absolute;
+        left: -1000px;
+    }
 }
 
 dl {
@@ -223,33 +238,32 @@ dl {
     margin-bottom: 0.5em;
     overflow: hidden;
     display: inline-block;
-    vertical-align: top;
     font-size: smaller;
     min-width: 7em;
 
     dt {
-        display: block;
-        width: 100%;
-        vertical-align: middle;
-        white-space: nowrap;
         @include text1;
+        display: block;
+        white-space: nowrap;
         text-transform: uppercase;
         margin-right: 0.5em;
-        padding-bottom: -0.3em;
     }
 
     dd {
-        display: block;
-        vertical-align: middle;
         @include text2;
+        display: block;
     }
 }
 
-dl.vertical {
-    display: block;
+dl.metric {
+    @include fancy_box(black);
+
+    dd:first-of-type {
+        color: $primary_color;
+    }
 }
 
-ul {
+ul.reps {
     display: inline-block;
 
     li {
@@ -260,65 +274,67 @@ ul {
 
 section {
     margin: 0 0.5em 1em 0.5em;
-    overflow: auto;
     padding: 0;
 }
 
-.day-container, .excercise {
-    min-height: 5em;
+.day, .excercise {
+    color: white;
     vertical-align: top;
     border-radius: 0.3em;
     border: 1px solid #111;
-    border-left: 2px solid $primary_color;
+    border-left: 2px solid #333;
     margin-bottom: 0.5em;
     background: linear-gradient(135deg, #111 0%, black 100%);
+
+    &.active {
+        border-left: 2px solid $primary_color;
+    }
+
+    &.inactive {
+        border-left: 2px solid #333;
+    }
+
+    .name {
+        display: inline-block;
+        color: #aaa;
+        margin: 0 0 0 0.5em;
+        text-transform: uppercase;
+        font-size: smaller;
+    }
+
+    .content {
+        border: none;
+        margin-left: 0.5em;
+        vertical-align: top;
+        text-transform: uppercase;
+        vertical-align: top;
+    }
 }
 
-.active_day {
-    border-left: 2px solid $primary_color;
+.day {
+    min-height: 5em;
+
+    .name {
+        width: 2.5em;
+    }
+
+    .content {
+        padding-top: 0.5em;
+        display: inline-block;
+        color: #222;
+    }
 }
 
-.inactive_day {
-    border-left: 2px solid #333;
-}
-
-.day-name, .excercise_title {
-    display: inline-block;
-    margin: 0 1em 0 0;
-    color: #aaa;
-    padding: 0.5em;
-    text-transform: uppercase;
-    font-size: smaller;
-}
-
-.day-name {
-    width: 3em;
-}
-
-.day-content, .excercise_content {
-    border: none;
-    margin-left: 0.5em;
-    vertical-align: top;
-
-    font-weight: 100;
-    color: #444;
-    text-transform: uppercase;
-    vertical-align: top;
-}
-
-.day-content {
-    padding-top: 0.5em;
-    display: inline-block;
-}
-
-.excercise_content {
-    padding-bottom: 0.5em;
+.excercise {
+    .content {
+        padding-bottom: 0.5em;
+    }
 }
 
 nav {
     background-color: lighten($background-color, 5%);
     margin-bottom: 1em;
-    padding: 0.5em;
+    padding: 0.3em;
 
     a {
         @include button($secondary_color)
@@ -339,7 +355,7 @@ nav {
 }
 
 .form-value-shortcut {
-    @include button(darken($secondary_color, 10%))
+    @include button(darken($secondary_color, 10%));
     padding: 0.2em 0.5em 0.2em 0.5em;
     margin: 0.2em;
     border-radius: 0.3em;
@@ -369,5 +385,24 @@ nav {
     margin: 0;
     strong {
         margin: 0;
+    }
+}
+
+.quick_stats {
+    dl.metric {
+        max-width: 7em;
+    }
+
+    dt {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    a {
+        vertical-align: top;
+        display: inline-block;
+        color: $primary_color;
+        font-weight: bold;
+        margin-bottom: 0.5em;
     }
 }

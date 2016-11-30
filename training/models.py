@@ -72,9 +72,9 @@ class Workout(models.Model):
 
     def volume(self):
         if self.is_gpx():
-            return units.Volume(meters=self._total_distance())
+            return units.Volume(meters=self._total_distance() or 0)
         else:
-            return units.Volume(reps=self._total_reps())
+            return units.Volume(reps=self._total_reps() or 0)
 
 
 class Excercise(models.Model):
@@ -94,7 +94,7 @@ class Excercise(models.Model):
     time_updated = models.DateTimeField(null=True, default=None)
 
     class Meta:
-        ordering = ['time_started']
+        ordering = ['-time_started']
 
 
 class Reps(models.Model):
@@ -175,3 +175,8 @@ class AuthKeys(models.Model):
 class EndomondoWorkout(models.Model):
     endomondo_id = models.IntegerField()
     workout = models.ForeignKey(Workout)
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    timezone = models.CharField(max_length=30, null=True, default=None)

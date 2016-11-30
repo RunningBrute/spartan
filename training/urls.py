@@ -15,8 +15,11 @@ urlpatterns = [
             success_url='/'
         ), name='register'),
 
+    url('^user_profile$', views.user_profile, name='user_profile'),
+
     url('^dashboard$', views.dashboard, name='dashboard'),
     url('^statistics$', views.statistics, name='statistics'),
+    url('^statistics_this_month$', views.statistics_this_month, name='statistics_this_month'),
     url('^start_workout/$', views.start_workout, name='start_workout'),
     url('^finish_workout/(?P<training_session_id>[0-9]+)$', views.finish_workout, name='finish_workout'),
     url('^delete_workout/(?P<workout_id>[0-9]+)/$', views.delete_workout, name='delete_workout'),

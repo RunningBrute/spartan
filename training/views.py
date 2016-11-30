@@ -1,15 +1,27 @@
 import os
 import logging
+import pytz
+import pytz.exceptions
 
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import *
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django import forms
 
 from .models import *
 from .statistics import *
 from . import gpx
+from training import userprof
+from training import strength_workout
+
+
+def _make_form(form_type, request, initial=None):
+    if request.method == "POST":
+        return form_type(request.POST, request.FILES)
+    else:
+        return form_type(initial=initial)
 
 
 def index(request):
@@ -17,6 +29,19 @@ def index(request):
         return redirect('dashboard')
     else:
         return render(request, 'training/index.html', {'users_count': User.objects.all().count()})
+
+
+@login_required
+def user_profile(request):
+    current_tz = userprof.timezone(request.user)
+
+    form = _make_form(userprof.UserProfileForm, request, {'timezone': current_tz.zone})
+
+    if request.method == "POST":
+        userprof.save_timezone(request.user, request.POST['timezone'])
+        return redirect('user_profile')
+
+    return render(request, 'training/user_profile.html', {'form': form})
 
 
 @login_required
@@ -30,25 +55,20 @@ def statistics(request):
 
 
 @login_required
+def statistics_this_month(request):
+    return render(request, 'training/statistics_this_month.html', {'statistics': Statistics(request.user)})
+
+
+@login_required
 def start_workout(request):
-    workout = Workout.objects.create(user=request.user)
-    return redirect('workout', workout.id)
+    id = strength_workout.start_workout(request.user)
+    return redirect('workout', id)
 
 
 @login_required
 def finish_workout(request, training_session_id):
-    workout = Workout.objects.get(pk=training_session_id)
-    workout.finish()
-    workout.save()
-
-    try:
-        current_excercise = workout.excercise_set.order_by('-pk')[0]
-        current_excercise.time_finished = timezone.now()
-        current_excercise.save()
-    except:
-        pass
-
-    return redirect('workout', workout.id)
+    strength_workout.finish_workout(None, training_session_id)
+    return redirect('workout', training_session_id)
 
 
 @login_required
@@ -68,25 +88,7 @@ def workout(request, training_session_id):
 
 @login_required
 def add_excercise(request, training_session_id):
-    workout = Workout.objects.get(pk=training_session_id, user=request.user)
-
-    try:
-        current_excercise = workout.excercise_set.order_by('-pk')[0]
-        current_excercise.time_finished = timezone.now()
-        current_excercise.save()
-    except:
-        pass
-
-    excercise = workout.excercise_set.create(name=request.POST['name'])
-    try:
-        workout.start()
-    except:
-        pass
-    workout.save()
-
-    excercise.time_started = timezone.now()
-    excercise.save()
-
+    strength_workout.add_excercise(request.user, training_session_id, request.POST['name'])
     return redirect('workout', training_session_id)
 
 
@@ -107,10 +109,8 @@ def delete_workout(request, workout_id):
     return redirect('dashboard')
 
 
-from django import forms
-
 class UploadGpxForm(forms.Form):
-    gpxfile = forms.FileField(label='Select a file')
+    gpxfile = forms.FileField(label='select a file', label_suffix='')
 
 
 @login_required
@@ -134,13 +134,15 @@ class ConnectWithEndomondoForm(forms.Form):
 
 @login_required
 def endomondo(request):
-    if request.method == "POST":
+    key = gpx.endomondo_key(request.user)
+
+    form = _make_form(ConnectWithEndomondoForm, request)
+
+    if form.is_bound and form.is_valid():
         gpx.connect_to_endomondo(request.user, request.POST["email"], request.POST["password"])
         return redirect('endomondo')
-    else:
-        key = gpx.endomondo_key(request.user)
-        form = ConnectWithEndomondoForm()
-        return render(request, 'training/endomondo.html', {'form': form, 'key': key})
+
+    return render(request, 'training/endomondo.html', {'form': form, 'key': key})
 
 
 @login_required
