@@ -94,12 +94,8 @@ def add_excercise(request, training_session_id):
 
 @login_required
 def add_reps(request, excercise_id):
-    s = Excercise.objects.get(pk=excercise_id, workout__user=request.user)
-    s.reps_set.create(reps=request.POST['reps'])
-
-    s.time_updated = timezone.now()
-    s.save()
-    return redirect('workout', s.workout.id)
+    id = strength_workout.add_reps(request.user, excercise_id, request.POST['reps'])
+    return redirect('workout', id)
 
 
 @login_required
@@ -168,3 +164,9 @@ def disconnect_endomondo(request):
 def purge_endomondo(request):
     gpx.purge_endomondo_workouts(request.user)
     return redirect('dashboard')
+
+
+@login_required
+def explorer(request):
+    heatmap = gpx.generate_heatmap(request.user)
+    return render(request, 'training/explorer.html', {'heatmap': heatmap, 'c': len(heatmap)})
