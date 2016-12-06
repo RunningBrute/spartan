@@ -1,29 +1,68 @@
 {%extends "training/base.html"%}
 
-{% block nav %}
-<nav>
-    <a href="{% url 'dashboard' %}">dashboard</a>
-</nav>
-{% endblock %}
-
 {%block content%}
 
 {% load staticfiles %}
 {% load training_format %}
 
-im da fkin explorer
-
 <link rel="stylesheet" href="https://openlayers.org/en/v3.19.1/css/ol.css" type="text/css">
 <script src="https://openlayers.org/en/v3.19.1/build/ol.js"></script>
 
 <section>
-    <div id="map" style="height: 700px"></div>
+    {% for activity in heatmap.activities %}
+        {% with 'training/hexagon-'|add:activity.color|add:'.png' as icon %}
+            <dl class="metric interactive active" onclick="toggleLayer(this, '{{ activity.activity_type }}')">
+                <dt>
+                    <img src="{% static icon %}" width="8" height="8" />
+                    {{ activity.activity_type }}
+                </dt>
+                <dd>
+                    {{ activity.points|length }}
+                </dd>
+            </dl>
+        {% endwith %}
+    {% endfor %}
+</section>
+
+<section>
+    <div id="map" style="height: 550px"></div>
 </section>
 
 <script>
 
-function makeGpsLayer(polyline_points) {
-    var track = new ol.geom.MultiPoint(polyline_points).transform('EPSG:4326', 'EPSG:3857');
+function makeIconStyle(src) {
+    return new ol.style.Style({
+        image: new ol.style.Icon({
+            src: src
+        })
+    });
+}
+
+var activities = {
+    {% for activity in heatmap.activities %}
+        {% with 'training/hexagon-'|add:activity.color|add:'.png' as icon %}
+            '{{ activity.activity_type }}': makeIconStyle('{% static icon %}'),
+        {% endwith %}
+    {% endfor %}
+};
+
+function scaleStyles(scale, opacity) {
+    for (activity_type in activities) {
+        activities[activity_type].getImage().setScale(scale);
+        activities[activity_type].getImage().setOpacity(opacity);
+    }
+}
+
+function getActivityStyle(activity_type) {
+    if (activity_type in activities) {
+        return activities[activity_type];
+    } else {
+        console.log("no style defined for " + activity_type);
+    }
+}
+
+function makeHeatmapLayer(activity) {
+    var track = new ol.geom.MultiPoint(activity.points);
 
     var featureLine = new ol.Feature({
         geometry: track
@@ -33,45 +72,80 @@ function makeGpsLayer(polyline_points) {
         features: [featureLine]
     });
 
-    var styles = [
-        new ol.style.Style({
-            image: new ol.style.Circle({
-                radius: 3,
-                fill: new ol.style.Fill({
-                    color: '#3399ff'
-                })
-            })
-        })
-    ]
-
     var layer = new ol.layer.Vector({
         source: sourceLine,
 
-        style: styles
+        style: function(feature, resolution) {
+            if (resolution < 50)
+            {
+                scaleStyles(2 / resolution, 0.5);
+            }
+            else
+            {
+                scaleStyles(0.2, 0.1);
+            }
+            return getActivityStyle(activity.activity_type);
+        }
     });
+
+    layer.name = activity.activity_type;
 
     return layer
 }
 
-function renderMap(target, layer) {
+function renderMap(target, layers) {
     var osmLayer = new ol.layer.Tile({source: new ol.source.OSM()})
 
     var map = new ol.Map({
-            layers: [osmLayer, layer],
+            layers: [osmLayer].concat(layers),
             target: target
         });
 
-    map.getView().fit(layer.getSource().getExtent(), map.getSize());
+    var extent = ol.extent.createEmpty();
+    layers.forEach(function(layer) {
+        ol.extent.extend(extent, layer.getSource().getExtent());
+    });
+
+    map.getView().fit(extent, map.getSize());
+
+    return map;
 }
 
-var points = {{ heatmap|safe }};
+function findLayer(name) {
+    for (key in heatmapLayers) {
+        layer = heatmapLayers[key];
 
-renderMap('map', makeGpsLayer(points));
+        if (layer.name == name) {
+            return layer;
+        }
+    }
+}
+
+function toggleLayer(e, name) {
+    layer = findLayer(name);
+
+    var visible = !layer.getVisible();
+    layer.setVisible(visible);
+
+    if (visible)
+    {
+        $(e).removeClass('inactive');
+        $(e).addClass('active');
+    }
+    else
+    {
+        $(e).addClass('inactive');
+        $(e).removeClass('active');
+    }
+}
+
+var heatmapLayers;
+
+$(document).ready(function() {
+    heatmapLayers = {{ heatmap.json|safe }}.map(makeHeatmapLayer);
+    renderMap('map', heatmapLayers);
+});
 
 </script>
-
-<p>
-    points: {{ c }}
-</p>
 
 {%endblock%}

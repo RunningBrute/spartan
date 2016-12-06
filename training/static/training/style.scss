@@ -242,6 +242,18 @@ dl.metric {
     dd:first-of-type {
         color: $primary_color;
     }
+
+    &.active {
+        border-top: 2px solid $primary_color;
+    }
+
+    &.inactive {
+        border-top: 2px solid #333;
+    }
+
+    &.interactive {
+        cursor: pointer;
+    }
 }
 
 section {
@@ -326,10 +338,51 @@ nav {
     margin-bottom: 1em;
     padding: 0.3em;
 
-    a {
-        @include button($secondary_color)
+    .toolbox {
+        display: inline-block;
+        a {
+            @include button($secondary_color)
+        }
+    }
+
+    &.menu {
+        .toggle {
+            @include button(darken($secondary_color, 10%))
+        }
+    }
+
+    #menu-content {
+        a {
+            display: block;
+            padding: 0.5em;
+            border-top: 1px solid #222;
+        }
+
+        a:first-of-type {
+            border-top: none;
+        }
     }
 }
+
+nav {
+    #menu-content {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 480px) {
+    nav {
+        #menu-content {
+            display: inline-block;
+            a {
+                @include button(darken($secondary_color, 10%))
+                display: inline-block;
+
+            }
+        }
+    }
+}
+
 
 .button {
     @include button(darken($secondary_color, 10%))

@@ -3,8 +3,12 @@ import os
 import logging
 import json
 import decimal
+import pyproj
+import math
+from math import sqrt
 
 from django.db import transaction
+from django.utils import timezone
 
 import gpxpy
 
@@ -136,22 +140,5 @@ def purge_endomondo_workouts(user):
     models.Workout.objects.filter(user=user, endomondoworkout__isnull=False).delete()
 
 
-def generate_heatmap(user):
-    def r(value):
-        return round(float(value), 3)
-
-    def make_heatmap_point(gpx_point):
-        lon, lat = gpx_point
-        return r(lon), r(lat)
-
-    def json_encode_decimal(obj):
-        if isinstance(obj, decimal.Decimal):
-            return str(obj)
-        raise TypeError(repr(obj) + " is not JSON serializable")
-
-    points = models.GpxTrackPoint.objects.filter(gpx__workout__user=user).values_list('lon', 'lat')
-    points = map(make_heatmap_point, points)
-    points = set(points)
-    points = list(points)
-
-    return json.dumps(points, default=json_encode_decimal)
+def workout_types(user):
+    return set(models.Gpx.objects.filter(workout__user=user).values_list('activity_type', flat=True))
