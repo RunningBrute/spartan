@@ -24,19 +24,13 @@
 </head>
 
 <body>
-    <div class="header">
-        <div>
-            <a href="{%url 'index'%}"><img src="{% static 'training/spartan.svg' %}" /></a>
-        </div>
-
-        <div>
-            {%if request.user.is_authenticated%}
-                logged as <a href="{% url 'user_profile' %}">{{request.user.username}}</a> (<a href="{% url 'logout' %}">logout</a>)
-            {%else%}
-                not logged in
-            {%endif%}
-        </div>
-    </div>
+    <header>
+        {%if request.user.is_authenticated%}
+            logged as <a href="{% url 'user_profile' %}">{{request.user.username}}</a> (<a href="{% url 'logout' %}">logout</a>)
+        {%else%}
+            not logged in
+        {%endif%}
+    </header>
 
     <script>
     function toggleMenu() {
@@ -66,9 +60,8 @@
         </nav>
     {% endblock %}
 
-    {%spaceless%}
-    {%block content%}{%endblock%}
-    {%endspaceless%}
+    {% block content %}
+    {% endblock %}
 </body>
 
 </html>

@@ -71,20 +71,12 @@ a {
     color: darken(white, 20%);
 }
 
-.header {
+header {
     background-color: $primary_color;
-    padding: 0.2em;
-
-    div {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    img {
-        display: block;
-        width: 24px;
-        height: 24px;
-    }
+    background-image: url(spartan.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0.3em 0 0.3em 32px;
 }
 
 h2, h3, h4, h5 {
