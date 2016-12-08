@@ -3,6 +3,7 @@
 
 <link rel="stylesheet" href="https://openlayers.org/en/v3.19.1/css/ol.css" type="text/css">
 <script src="https://openlayers.org/en/v3.19.1/build/ol.js"></script>
+<script src="{% static 'training/activity_charts.js' %}"></script>
 
 <h2>{{ gpx.activity_type }}, {{ workout.started }}</h2>
 <section>
@@ -87,7 +88,7 @@ renderMap('map', makeGpsLayer(points));
 
     <script>
     $(document).ready(function() {
-        render_charts('#charts', '#pace1', '#pace2', {{ gpx.points_as_json|safe }}, {{ gpx.average_hr }}, {{ gpx.average_cad }});
+        render_charts('#charts', '#pace1', '#pace2', {{ gpx.points_as_json|safe }}, {{ gpx.average_hr }}, {{ gpx.average_cad|default_if_none:'null' }});
     });
     </script>
 

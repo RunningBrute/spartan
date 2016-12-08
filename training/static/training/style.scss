@@ -366,7 +366,7 @@ nav {
     }
 }
 
-@media screen and (min-width: 480px) {
+@media screen and (min-width: 650px) {
     nav {
         #menu-content {
             display: inline-block;
@@ -383,7 +383,7 @@ nav {
     }
 }
 
-@media screen and (max-width: 480px) {
+@media screen and (max-width: 650px) {
     .desktop {
         display: none;
     }
