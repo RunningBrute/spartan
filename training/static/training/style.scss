@@ -335,6 +335,10 @@ nav {
         a {
             @include button($secondary_color)
         }
+
+        a.dangerous {
+            @include button(darken(red, 30%))
+        }
     }
 
     &.menu {
