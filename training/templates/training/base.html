@@ -33,20 +33,32 @@
     </header>
 
     <script>
-    function toggleMenu() {
-        $("#menu-content").toggle();
-    }
+        function makeMenu(button, content) {
+            $(button).click(function() {
+                $(content).toggle();
+            });
+
+            $(window).resize(function() {
+                $(content).removeAttr("style");
+            });
+        }
+
+        $(document).ready(function() {
+            makeMenu("#toggle-menu", "#menu-content");
+        });
     </script>
 
     {% block nav %}
         <nav class="menu">
             {% if request.user.is_authenticated %}
+                <span class="mobile">
+                    <a id="toggle-menu" href="#">&#9776;</a>
+                </span>
+
                 <div class="toolbox">
                     {% block toolbox %}
                     {% endblock %}
                 </div>
-
-                <a class="toggle" href="#" onclick="toggleMenu()">&#9776;</a>
 
                 <div id="menu-content">
                     <a href="{% url 'dashboard' %}">dashboard</a>

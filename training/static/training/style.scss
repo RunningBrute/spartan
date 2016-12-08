@@ -338,8 +338,8 @@ nav {
     }
 
     &.menu {
-        .toggle {
-            @include button(darken($secondary_color, 10%))
+        #toggle-menu {
+            @include button(darken($secondary_color, 20%))
         }
     }
 
@@ -373,8 +373,17 @@ nav {
             }
         }
     }
+
+    .mobile {
+        display: none;
+    }
 }
 
+@media screen and (max-width: 480px) {
+    .desktop {
+        display: none;
+    }
+}
 
 .button {
     @include button(darken($secondary_color, 10%))
