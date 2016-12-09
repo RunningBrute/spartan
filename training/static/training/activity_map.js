@@ -1,5 +1,10 @@
 activityMap = {}
 
+activityMap.makeLineStyle = function(color, width) {
+    stroke = new ol.style.Stroke({color: color, width: width });
+    return new ol.style.Style({ stroke: stroke });
+};
+
 activityMap.makeGpsLayer = function(json) {
     var points = json.map(function(point) { return [point.lon, point.lat]; });
     var track = new ol.geom.LineString(points).transform('EPSG:4326', 'EPSG:3857');
@@ -13,20 +18,9 @@ activityMap.makeGpsLayer = function(json) {
     });
 
     var styles = [
-        new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'white',
-                width: 6
-            })
-        }),
-
-        new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: '#3399ff',
-                width: 3
-            })
-        })
-    ]
+        this.makeLineStyle('#333', 6),
+        this.makeLineStyle('orange', 3),
+    ];
 
     var layer = new ol.layer.Vector({
         source: sourceLine,
