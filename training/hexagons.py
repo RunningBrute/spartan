@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, floor
 
 
 SQRT_3 = 1.7320508075688772
@@ -7,63 +7,37 @@ HEXAGON_SIZE = 100
 HEXAGON_WIDTH = HEXAGON_SIZE * 2
 HEXAGON_HEIGHT = SQRT_3 / 2 * HEXAGON_WIDTH
 
-
-def hex_to_pixel(h):
-    q, r = h
-    x = HEXAGON_SIZE * 3/2 * q
-    y = HEXAGON_SIZE * SQRT_3 * (r + q/2)
-    return x, y
+S = HEXAGON_SIZE
 
 
-def cube_to_hex(h): # axial
-    x, _, z = h
-    q = x
-    r = z
-    return q, r
+def point_to_hexagon(point):
+    x, y = point
 
-
-def hex_to_cube(h): # axial
-    q, r = h
-    x = q
-    z = r
+    x = x / 3
+    z = (-x + SQRT_3 / 3 * y) / S
+    x = x * 2 / S
     y = -x-z
-    return (x, y, z)
-
-
-def cube_round(h):
-    x, y, z = h
 
     rx = round(x)
     ry = round(y)
     rz = round(z)
 
-    x_diff = abs(rx - x)
-    y_diff = abs(ry - y)
-    z_diff = abs(rz - z)
+    xd = abs(rx - x)
+    yd = abs(ry - y)
+    zd = abs(rz - z)
 
-    if x_diff > y_diff and x_diff > z_diff:
+    if xd > yd and xd > zd:
         rx = -ry-rz
-    elif y_diff > z_diff:
-        ry = -rx-rz
+    elif yd > zd:
+        pass
     else:
         rz = -rx-ry
 
-    return rx, ry, rz
+    rx = rx / 2
+    y = S * SQRT_3 * (rz + rx)
+    x = S * 3 * rx
 
-
-def hex_round(h):
-    return cube_to_hex(cube_round(hex_to_cube(h)))
-
-
-def pixel_to_hex(point):
-    x, y = point
-    q = x * 2/3 / HEXAGON_SIZE
-    r = (-x / 3 + SQRT_3 / 3 * y) / HEXAGON_SIZE
-    return hex_round((q, r))
-
-
-def point_to_hexagon(point):
-    return hex_to_pixel(pixel_to_hex(point))
+    return x, y
 
 
 def points_to_hexagon(points):
