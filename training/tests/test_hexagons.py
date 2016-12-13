@@ -34,7 +34,7 @@ class HexagonsTestSuite(TestCase):
         print("size: {}, width: {}, height: {}".format(hexagons.HEXAGON_SIZE, hexagons.HEXAGON_WIDTH, hexagons.HEXAGON_HEIGHT))
 
     def _expect_point_on_hex(self, h, p):
-        self.assertEqual(h, p)
+        self.assertEqual(h, hexagons.point_to_hexagon(p))
 
     def test_convert_from_pixel_00(self):
         self._expect_point_on_hex((0, 0), (0, 0))
