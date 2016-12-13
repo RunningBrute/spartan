@@ -50,7 +50,7 @@ class HexagonsTestSuite(TestCase):
         self._expect_point_on_hex((0, H), (0, HALF_H + 1))
         self._expect_point_on_hex((0, H), (0, H + HALF_H - 1))
 
-    @unittest.skip
+    #@unittest.skip
     def test_monster(self):
         points = [(x, y) for x in range(1000) for y in range(1000)]
-        [hexagons.point_to_hexagon(h) for h in points]
+        hexagons.points_to_hexagon(points)

@@ -24,7 +24,7 @@ def _web_mercator(point):
 
 def _process_points(activity):
     points = map(_web_mercator, activity)
-    points = map(hexagons.point_to_hexagon, points)
+    points = hexagons.points_to_hexagon(points)
     points = set(points)
     points = list(points)
     return points

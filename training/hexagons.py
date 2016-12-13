@@ -64,3 +64,7 @@ def pixel_to_hex(point):
 
 def point_to_hexagon(point):
     return hex_to_pixel(pixel_to_hex(point))
+
+
+def points_to_hexagon(points):
+    return [point_to_hexagon(p) for p in points]
