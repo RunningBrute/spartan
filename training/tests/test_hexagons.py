@@ -31,7 +31,7 @@ HALF_W = W / 2
 
 class HexagonsTestSuite(TestCase):
     def setUp(self):
-        print("size: {}, width: {}, height: {}".format(hexagons.HEXAGON_SIZE, hexagons.HEXAGON_WIDTH, hexagons.HEXAGON_HEIGHT))
+        print("size: {}, width: {}, height: {}".format(S, W, H))
 
     def _expect_point_on_hex(self, h, p):
         self.assertEqual(h, hexagons.point_to_hexagon(p))
