@@ -29,6 +29,9 @@ HALF_H = H / 2
 W = hexagons.HEXAGON_WIDTH
 HALF_W = W / 2
 
+# lon diff between 00 and 01
+OF = 3/4 * W
+
 
 class HexagonsTestSuite(TestCase):
     def setUp(self):
@@ -49,6 +52,10 @@ class HexagonsTestSuite(TestCase):
     def test_convert_from_pixel_01(self):
         self._expect_point_on_hex((0, H), (0, HALF_H + 1))
         self._expect_point_on_hex((0, H), (0, H + HALF_H - 1))
+
+    def test_convert_from_pixel_10(self):
+        self._expect_point_on_hex((OF, HALF_H), (OF, HALF_H))
+        self._expect_point_on_hex((OF, HALF_H), (OF, 1))
 
     #@unittest.skip
     def test_monster(self):
