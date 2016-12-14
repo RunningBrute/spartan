@@ -1,7 +1,7 @@
 import unittest
 from django.test import TestCase
 
-from training import hexagons
+from training.hexagons import point_to_hexagon, points_to_hexagon, S, W, H
 
 '''
  lat
@@ -21,12 +21,7 @@ from training import hexagons
 hexagons.point_to_hexagon((lon, lat))
 '''
 
-S = hexagons.HEXAGON_SIZE
-
-H = hexagons.HEXAGON_HEIGHT
 HALF_H = H / 2
-
-W = hexagons.HEXAGON_WIDTH
 HALF_W = W / 2
 
 # lon diff between 00 and 01
@@ -38,7 +33,7 @@ class HexagonsTestSuite(TestCase):
         print("size: {}, width: {}, height: {}".format(S, W, H))
 
     def _expect_point_on_hex(self, h, p):
-        self.assertEqual(h, hexagons.point_to_hexagon(p))
+        self.assertEqual(h, point_to_hexagon(p))
 
     def test_convert_from_pixel_00(self):
         self._expect_point_on_hex((0, 0), (0, 0))
@@ -60,4 +55,4 @@ class HexagonsTestSuite(TestCase):
     #@unittest.skip
     def test_monster(self):
         points = [(x, y) for x in range(1000) for y in range(1000)]
-        hexagons.points_to_hexagon(points)
+        points_to_hexagon(points)

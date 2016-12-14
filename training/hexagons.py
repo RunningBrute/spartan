@@ -1,21 +1,24 @@
 from math import sqrt, floor
 
 
-SQRT_3 = 1.7320508075688772
+_SQRT_3 = sqrt(3)
+_SQRT_3_DIV_3 = _SQRT_3 / 3
 
-HEXAGON_SIZE = 100
-HEXAGON_WIDTH = HEXAGON_SIZE * 2
-HEXAGON_HEIGHT = SQRT_3 / 2 * HEXAGON_WIDTH
+S = 100
+W = S * 2
+H = _SQRT_3 / 2 * W
 
-S = HEXAGON_SIZE
+_S_MUL_3 = S * 3
+_S_MUL_SQRT_3 = S * _SQRT_3
+_TWO_DIV_S = 2/S
 
 
 def point_to_hexagon(point):
     x, y = point
 
     x = x / 3
-    z = (-x + SQRT_3 / 3 * y) / S
-    x = x * 2 / S
+    z = (-x + _SQRT_3_DIV_3 * y) / S
+    x = x * _TWO_DIV_S
     y = -x-z
 
     rx = round(x)
@@ -34,8 +37,8 @@ def point_to_hexagon(point):
         rz = -rx-ry
 
     rx = rx / 2
-    y = S * SQRT_3 * (rz + rx)
-    x = S * 3 * rx
+    y = _S_MUL_SQRT_3 * (rz + rx)
+    x = _S_MUL_3 * rx
 
     return x, y
 
