@@ -19,8 +19,7 @@ urlpatterns = [
 
     url('^dashboard$', views.dashboard, name='dashboard'),
 
-    url('^statistics$', views.statistics, name='statistics'),
-    url('^statistics_this_month$', views.statistics_this_month, name='statistics_this_month'),
+    url('^statistics/', include('statistics.urls')),
 
     url('^start_workout/$', views.start_workout, name='start_workout'),
     url('^finish_workout/(?P<training_session_id>[0-9]+)$', views.finish_workout, name='finish_workout'),

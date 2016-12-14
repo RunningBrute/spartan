@@ -51,16 +51,6 @@ def dashboard(request):
 
 
 @login_required
-def statistics(request):
-    return render(request, 'training/statistics.html', {'statistics': Statistics(request.user)})
-
-
-@login_required
-def statistics_this_month(request):
-    return render(request, 'training/statistics_this_month.html', {'statistics': Statistics(request.user)})
-
-
-@login_required
 def start_workout(request):
     id = strength_workout.start_workout(request.user)
     return redirect('workout', id)
