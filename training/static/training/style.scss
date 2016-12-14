@@ -71,20 +71,12 @@ a {
     color: darken(white, 20%);
 }
 
-.header {
+header {
     background-color: $primary_color;
-    padding: 0.2em;
-
-    div {
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    img {
-        display: block;
-        width: 24px;
-        height: 24px;
-    }
+    background-image: url(spartan.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    padding: 0.3em 0 0.3em 32px;
 }
 
 h2, h3, h4, h5 {
@@ -343,11 +335,15 @@ nav {
         a {
             @include button($secondary_color)
         }
+
+        a.dangerous {
+            @include button(darken(red, 30%))
+        }
     }
 
     &.menu {
-        .toggle {
-            @include button(darken($secondary_color, 10%))
+        #toggle-menu {
+            @include button(darken($secondary_color, 20%))
         }
     }
 
@@ -370,7 +366,7 @@ nav {
     }
 }
 
-@media screen and (min-width: 480px) {
+@media screen and (min-width: 650px) {
     nav {
         #menu-content {
             display: inline-block;
@@ -381,8 +377,17 @@ nav {
             }
         }
     }
+
+    .mobile {
+        display: none;
+    }
 }
 
+@media screen and (max-width: 650px) {
+    .desktop {
+        display: none;
+    }
+}
 
 .button {
     @include button(darken($secondary_color, 10%))

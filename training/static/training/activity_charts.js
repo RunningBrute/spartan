@@ -1,31 +1,30 @@
-function distance(lat1, lon1, lat2, lon2)
-{
+var activityChart = {};
+
+activityChart.distance = function(lat1, lon1, lat2, lon2) {
     var lat1_in_rad = Math.PI * lat1 / 180;
     var lat2_in_rad = Math.PI * lat2 / 180;
     var theta = lon1 - lon2;
     var theta_in_rad = Math.PI * theta / 180;
     var dist = Math.sin(lat1_in_rad) * Math.sin(lat2_in_rad) + Math.cos(lat1_in_rad) * Math.cos(lat2_in_rad) * Math.cos(theta_in_rad);
 
-	dist = Math.acos(dist);
-	dist = dist * 180 / Math.PI;
-	dist = dist * 60 * 1.1515;
-	dist = dist * 1.609344 * 1000;
+    dist = Math.acos(dist);
+    dist = dist * 180 / Math.PI;
+    dist = dist * 60 * 1.1515;
+    dist = dist * 1.609344 * 1000;
 
-	return dist;
-}
+    return dist;
+};
 
-function min_max(array)
-{
+activityChart.minMax = function(array) {
     var max = -1;
     var min = 10000;
 
-	for (i = 0; i < array.length; i++)
-	{
-	    if (array[i] > max) max = array[i];
-	    if (array[i] < min) min = array[i];
-	}
+    for (i = 0; i < array.length; i++) {
+        if (array[i] > max) max = array[i];
+        if (array[i] < min) min = array[i];
+    }
 
-	return [min, max];
+    return [min, max];
 }
 
 function get_single_intervals_time(points, time_data, interval_length_in_m)
@@ -44,7 +43,7 @@ function get_single_intervals_time(points, time_data, interval_length_in_m)
 
 	    if (distt < interval_length_in_m)
 	    {
-	        distt = distt + distance(lat2, lon2, lat1, lon1);
+	        distt = distt + activityChart.distance(lat2, lon2, lat1, lon1);
 	        time = time + (time_data[i] - time_data[i-1]);
 	    }
 	    else
@@ -58,7 +57,7 @@ function get_single_intervals_time(points, time_data, interval_length_in_m)
     return intervals_time;
 }
 
-function set_chart_globals()
+function setGlobalSettings()
 {
     Chart.defaults.global.elements.rectangle.borderColor = 'rgba(207, 74, 8, 0.8)';
     Chart.defaults.global.elements.rectangle.backgroundColor = 'rgba(207, 74, 8, 0.1)';
@@ -69,29 +68,25 @@ function set_chart_globals()
     Chart.defaults.global.elements.line.borderColor = 'rgba(207, 74, 8, 0.8)';
     Chart.defaults.global.elements.line.backgroundColor = 'rgba(207, 74, 8, 0.05)';
     Chart.defaults.global.legend.display = true;
-    Chart.defaults.global.legend.position = "top";
-
-    Chart.defaults.global.defaultFontColor = 'rgba(160, 160, 160, 0.8)';
-    Chart.defaults.global.defaultFontFamily = 'Helvetica';
-    Chart.defaults.global.defaultFontSize = 12;
-    Chart.defaults.global.defaultFontStyle = "Bold";
+    Chart.defaults.global.legend.position = "right";
 }
 
 function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, average_cad)
 {
-    set_chart_globals();
+    setGlobalSettings();
 
     var hr_data = points.map(function (point){ return point.hr; });
     var cad_data = points.map(function (point){ return point.cad; });
-    var time_data = points.map(function (point)
-            {
-                var started_time = new Date(points[0].time).getTime();
-			    var actual_time = new Date(point.time).getTime();
-			    var delta_time_in_ms = actual_time - started_time;
-			    const one_minute_in_ms = 1000;
 
-			    return delta_time_in_ms / one_minute_in_ms;
-		    });
+    var time_data = points.map(function (point)
+    {
+        var started_time = new Date(points[0].time).getTime();
+        var actual_time = new Date(point.time).getTime();
+        var delta_time_in_ms = actual_time - started_time;
+        const one_minute_in_ms = 1000;
+
+        return delta_time_in_ms / one_minute_in_ms;
+    });
 
     avg_hr_data = [];
     avg_cad_data = [];
@@ -120,7 +115,7 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
                 datasets: [{
                     borderColor: "rgba(153, 0, 0, 0.8)",
                     backgroundColor: "rgba(153, 0, 0, 0.1)",
-                    label: "Heart rate",
+                    label: "HR",
                     fill: true,
                     cubicInterpolationMode: "monotone",
                     pointRadius: 0,
@@ -145,7 +140,7 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
                 {
                     borderColor: "rgba(0, 76, 153, 0.4)",
                     backgroundColor: "rgba(0, 76, 153, 0)",
-                    label: "Avg cad",
+                    label: "Avg cadence",
                     fill: false,
                     pointRadius: 0,
                     data: avg_cad_data
@@ -186,8 +181,8 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
         km_ids.push (i + 1);
     }
 
-    var min_y = min_max(single_km_times)[0];
-    var max_y = min_max(single_km_times)[1];
+    var min_y = activityChart.minMax(single_km_times)[0];
+    var max_y = activityChart.minMax(single_km_times)[1];
 
     scale = 0.05;
 
@@ -250,8 +245,8 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
         km_ids_2.push (i + 1);
     }
 
-    var min_y = min_max(single_km_times_2)[0];
-    var max_y = min_max(single_km_times_2)[1];
+    var min_y = minMax(single_km_times_2)[0];
+    var max_y = minMax(single_km_times_2)[1];
 
     min_y = min_y - scale * min_y;
     max_y = max_y + scale * max_y;

@@ -1,26 +1,17 @@
 from math import sqrt
 
 
-HEXAGONAL_SIZE = 100
+SQRT_3 = 1.7320508075688772
+
+HEXAGON_SIZE = 100
+HEXAGON_WIDTH = HEXAGON_SIZE * 2
+HEXAGON_HEIGHT = SQRT_3 / 2 * HEXAGON_WIDTH
 
 
 def hex_to_pixel(h):
     q, r = h
-    x = HEXAGONAL_SIZE * 3/2 * q
-    y = HEXAGONAL_SIZE * sqrt(3) * (r + q/2)
-    return x, y
-
-
-def hex_to_pixel(h):
-    x = HEXAGONAL_SIZE * sqrt(3) * (q + r/2)
-    y = HEXAGONAL_SIZE * 3/2 * r
-    return x, y
-
-
-def hex_to_pixel(h):
-    q, r = h
-    x = HEXAGONAL_SIZE * 3/2 * q
-    y = HEXAGONAL_SIZE * sqrt(3) * (r + q/2)
+    x = HEXAGON_SIZE * 3/2 * q
+    y = HEXAGON_SIZE * SQRT_3 * (r + q/2)
     return x, y
 
 
@@ -66,8 +57,8 @@ def hex_round(h):
 
 def pixel_to_hex(point):
     x, y = point
-    q = x * 2/3 / HEXAGONAL_SIZE
-    r = (-x / 3 + sqrt(3)/3 * y) / HEXAGONAL_SIZE
+    q = x * 2/3 / HEXAGON_SIZE
+    r = (-x / 3 + SQRT_3 / 3 * y) / HEXAGON_SIZE
     return hex_round((q, r))
 
 

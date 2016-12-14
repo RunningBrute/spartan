@@ -24,35 +24,41 @@
 </head>
 
 <body>
-    <div class="header">
-        <div>
-            <a href="{%url 'index'%}"><img src="{% static 'training/spartan.svg' %}" /></a>
-        </div>
-
-        <div>
-            {%if request.user.is_authenticated%}
-                logged as <a href="{% url 'user_profile' %}">{{request.user.username}}</a> (<a href="{% url 'logout' %}">logout</a>)
-            {%else%}
-                not logged in
-            {%endif%}
-        </div>
-    </div>
+    <header>
+        {%if request.user.is_authenticated%}
+            logged as <a href="{% url 'user_profile' %}">{{request.user.username}}</a> (<a href="{% url 'logout' %}">logout</a>)
+        {%else%}
+            not logged in
+        {%endif%}
+    </header>
 
     <script>
-    function toggleMenu() {
-        $("#menu-content").toggle();
-    }
+        function makeMenu(button, content) {
+            $(button).click(function() {
+                $(content).toggle("fast");
+            });
+
+            $(window).resize(function() {
+                $(content).removeAttr("style");
+            });
+        }
+
+        $(document).ready(function() {
+            makeMenu("#toggle-menu", "#menu-content");
+        });
     </script>
 
     {% block nav %}
         <nav class="menu">
             {% if request.user.is_authenticated %}
+                <span class="mobile">
+                    <a id="toggle-menu" href="#">&#9776;</a>
+                </span>
+
                 <div class="toolbox">
                     {% block toolbox %}
                     {% endblock %}
                 </div>
-
-                <a class="toggle" href="#" onclick="toggleMenu()">&#9776;</a>
 
                 <div id="menu-content">
                     <a href="{% url 'dashboard' %}">dashboard</a>
@@ -66,9 +72,8 @@
         </nav>
     {% endblock %}
 
-    {%spaceless%}
-    {%block content%}{%endblock%}
-    {%endspaceless%}
+    {% block content %}
+    {% endblock %}
 </body>
 
 </html>
