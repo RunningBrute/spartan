@@ -6,15 +6,11 @@ import decimal
 
 from django.utils import timezone
 from . import models
-from . import hexagons
+from .hexagons import point_to_hexagon
 
 
 EPSG4326 = pyproj.Proj('+init=EPSG:4326')
 WEB_MERCATOR = pyproj.Proj('+init=EPSG:3857')
-
-
-def _dump(data):
-    return json.dumps(data)
 
 
 def _web_mercator(point):
@@ -22,12 +18,8 @@ def _web_mercator(point):
     return pyproj.transform(EPSG4326, WEB_MERCATOR, lon, lat)
 
 
-def _process_points(activity):
-    points = map(_web_mercator, activity)
-    points = hexagons.points_to_hexagon(points)
-    points = set(points)
-    points = list(points)
-    return points
+def _process_points(points):
+    return list({point_to_hexagon(_web_mercator(point)) for point in points})
 
 
 ACTIVITIES = [{'activity_type': 'running', 'color': 'blue'},
@@ -47,12 +39,14 @@ def _collect_points(user, activity_type, days=None):
     return _process_points(points)
 
 
-def generate_heatmap(user, days=None):
-    activities = []
-    for activity in ACTIVITIES:
-        activities.append({'activity_type': activity['activity_type'],
-                           'color': activity['color'],
-                           'points': _collect_points(user, activity['activity_type'], days)})
+def _make_activity(user, activity, days):
+    return {'activity_type': activity['activity_type'],
+            'color': activity['color'],
+            'points': _collect_points(user, activity['activity_type'], days)}
 
-    return {'json': _dump(activities),
+
+def generate_heatmap(user, days=None):
+    activities = [_make_activity(user, activity, days) for activity in ACTIVITIES]
+
+    return {'json': json.dumps(activities),
             'activities': activities}
