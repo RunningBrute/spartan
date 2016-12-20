@@ -2,7 +2,9 @@ import datetime
 import pytz
 
 from training import models
-import training.statistics
+from .. import statistics
+from .. import goals
+
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 
@@ -13,7 +15,7 @@ class StatisticsTestCase(TestCase):
                                              email='jacob@…',
                                              password='top_secret')
 
-        self.statistics = training.statistics.Statistics(self.user)
+        self.statistics = statistics.Statistics(self.user)
 
     def test_weeks(self):
         models.Workout.objects.create(user=self.user,
