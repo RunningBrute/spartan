@@ -15,6 +15,10 @@ class StatisticsTestCase(TestCase):
                                              email='jacob@…',
                                              password='top_secret')
 
+        self.other_user = User.objects.create_user(username='zysz',
+                                                   email='jacob@…',
+                                                   password='top_secret')
+
         self.statistics = statistics.Statistics(self.user)
 
     def test_weeks(self):
@@ -29,3 +33,14 @@ class StatisticsTestCase(TestCase):
 
         days = list(weeks[0].days)
         self.assertEqual(1, len(days[3].workouts)) # thursday
+
+    def test_create_goal(self):
+        user_goals = goals.Goals(self.user)
+        user_goals.set("push-up", 100)
+        user_goals.set("sit-up", 200)
+        user_goals.set("push-up", 50)
+
+        other_user_goals = goals.Goals(self.other_user)
+        other_user_goals.set("push-up", 1000)
+
+        self.assertEqual([50, 200], [g.volume for g in user_goals.all()])
