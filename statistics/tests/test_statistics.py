@@ -1,9 +1,10 @@
 import datetime
 import pytz
+from unittest.mock import patch, Mock, PropertyMock
 
 from training import models
-from .. import statistics
-from .. import goals
+from statistics import statistics
+from statistics import goals
 
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
@@ -44,3 +45,18 @@ class StatisticsTestCase(TestCase):
         other_user_goals.set("push-up", 1000)
 
         self.assertEqual([50, 200], [g.volume for g in user_goals.all()])
+
+    def test_goal_properties(self):
+        with patch('statistics.goals.Statistics', autospec=True) as StatisticsMock:
+            statistics_mock = StatisticsMock.return_value
+
+            user_goals = goals.Goals(self.user)
+            user_goals.set('push-up', 3)
+
+            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': 0}]
+            all_goals = user_goals.all()
+            self.assertEqual(0, all_goals[0].progress)
+
+            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': 1}]
+            all_goals = user_goals.all()
+            self.assertEqual(33, all_goals[0].progress)
