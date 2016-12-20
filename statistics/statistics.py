@@ -5,9 +5,9 @@ import arrow
 from django.db.models import Sum, Min, Max
 from django.utils import timezone
 
-from .models import *
-from . import units
-from . import dates
+from training.models import *
+from training import units
+from training import dates
 
 
 def workouts_time_bounds(user):

@@ -24,7 +24,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.post('/login/', {'username': 'grzegorz', 'password': 'z'})
 
     def _start_workout(self):
-        workout = self.get('/start_workout').context['workout']
+        workout = self.get('/strength/start_workout').context['workout']
         self._expect_workout_page(workout.id)
         return workout
 
@@ -42,14 +42,14 @@ class ClienStrengthTestCase(utils.ClientTestCase):
     def _strength_workout(self, name, series):
         workout = self._start_workout()
 
-        self.post('/add_excercise/{}/'.format(workout.id), {'name': name})
+        self.post('/strength/add_excercise/{}/'.format(workout.id), {'name': name})
 
         excercise = workout.excercise_set.latest('pk')
 
         for reps in series:
-            self.post('/add_reps/{}/'.format(excercise.id), {'reps': reps})
+            self.post('/strength/add_reps/{}/'.format(excercise.id), {'reps': reps})
 
-        return self.post('/finish_workout/{}'.format(workout.id)).context['workout']
+        return self.post('/strength/finish_workout/{}'.format(workout.id)).context['workout']
 
     def _do_some_pushups(self, series):
         return self._strength_workout('push-up', series)
@@ -64,7 +64,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertIsNone(workout.started)
         self.assertIsNone(workout.finished)
 
-        self.post('/add_excercise/{}/'.format(workout.id), {'name': 'push-up'})
+        self.post('/strength/add_excercise/{}/'.format(workout.id), {'name': 'push-up'})
 
         statistics = self._get_statistics_from_dashboard()
         workout = statistics.previous_workouts()[0]
@@ -74,17 +74,17 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         excercise = workout.excercise_set.latest('pk')
 
-        self.post('/add_reps/{}/'.format(excercise.id), {'reps': '10'})
-        self.post('/add_excercise/{}/'.format(workout.id), {'name': 'pull-up'})
+        self.post('/strength/add_reps/{}/'.format(excercise.id), {'reps': '10'})
+        self.post('/strength/add_excercise/{}/'.format(workout.id), {'name': 'pull-up'})
 
         excercise = workout.excercise_set.latest('pk')
 
-        self.post('/add_reps/{}/'.format(excercise.id), {'reps': '5'})
-        self.post('/add_reps/{}/'.format(excercise.id), {'reps': '5'})
+        self.post('/strength/add_reps/{}/'.format(excercise.id), {'reps': '5'})
+        self.post('/strength/add_reps/{}/'.format(excercise.id), {'reps': '5'})
 
         self.assertEqual(units.Volume(reps=20), workout.volume())
 
-        self.post('/finish_workout/{}'.format(workout.id))
+        self.post('/strength/finish_workout/{}'.format(workout.id))
 
         statistics = self._get_statistics_from_dashboard()
         workout = statistics.previous_workouts()[0]
@@ -97,7 +97,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         workout = self._start_workout()
 
         with self.assertRaises(Exception):
-            self.post('/finish_workout/{}'.format(workout.id))
+            self.post('/strength/finish_workout/{}'.format(workout.id))
 
     def _import_gpx(self, filename):
         path = os.path.join(utils.GPX_DIR, filename)

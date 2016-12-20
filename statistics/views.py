@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import *
 
-from training.statistics import Statistics
+from .statistics import Statistics
 
 
 @login_required
