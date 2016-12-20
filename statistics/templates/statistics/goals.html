@@ -7,7 +7,9 @@
 <h2>your monthly goals</h2>
 <section>
     {% for goal in goals.all %}
-        {{ goal.name }} {{ goal.volume }} {{ goal.progress }}
+        <ul>
+            <li>{{ goal.name }} {{ goal.volume }} {{ goal.progress }}%</li>
+        </ul>
     {% endfor %}
 </section>
 

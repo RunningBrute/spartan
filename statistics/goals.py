@@ -5,14 +5,13 @@ from statistics import models
 from statistics.statistics import Statistics
 
 
-Goal = collections.namedtuple('Goal', ['volume', 'progress'])
+Goal = collections.namedtuple('Goal', ['name', 'volume', 'progress'])
 
 
 class Goals:
     def __init__(self, user):
         self.user = user
         self.statistics = Statistics(user)
-        print(self.statistics)
 
     def set(self, name, volume):
         models.Goal.objects.update_or_create(user=self.user, name=name, defaults={'volume': volume})
@@ -22,6 +21,6 @@ class Goals:
 
         def make_goal(goal):
             current = volumes.get(goal.name, units.Volume(0)).number()
-            return Goal(volume=goal.volume, progress=round(current / goal.volume * 100))
+            return Goal(name=goal.name, volume=goal.volume, progress=round(current / goal.volume * 100))
 
         return [make_goal(g) for g in models.Goal.objects.filter(user=self.user)]
