@@ -1,5 +1,6 @@
 import collections
 
+from training import units
 from statistics import models
 from statistics.statistics import Statistics
 
@@ -20,7 +21,7 @@ class Goals:
         volumes = {f['name']: f['volume'] for f in self.statistics.favourites_this_month()}
 
         def make_goal(goal):
-            current = volumes.get(goal.name, 0)
+            current = volumes.get(goal.name, units.Volume(0)).number()
             return Goal(volume=goal.volume, progress=round(current / goal.volume * 100))
 
         return [make_goal(g) for g in models.Goal.objects.filter(user=self.user)]

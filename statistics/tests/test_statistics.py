@@ -2,7 +2,7 @@ import datetime
 import pytz
 from unittest.mock import patch, Mock, PropertyMock
 
-from training import models
+from training import models, units
 from statistics import statistics
 from statistics import goals
 
@@ -53,10 +53,10 @@ class StatisticsTestCase(TestCase):
             user_goals = goals.Goals(self.user)
             user_goals.set('push-up', 3)
 
-            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': 0}]
+            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=0)}]
             all_goals = user_goals.all()
             self.assertEqual(0, all_goals[0].progress)
 
-            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': 1}]
+            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=1)}]
             all_goals = user_goals.all()
             self.assertEqual(33, all_goals[0].progress)

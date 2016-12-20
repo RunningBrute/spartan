@@ -41,5 +41,11 @@ class Volume:
         else:
             return Volume(meters=self.meters + other.meters)
 
+    def number(self):
+        if self.reps is not None:
+            return self.reps
+        else:
+            return self.meters
+
     def _valid(self):
         return (self.reps is None) != (self.meters is None)

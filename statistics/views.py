@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import *
 
 from .statistics import Statistics
+from .goals import Goals
 
 
 @login_required
@@ -12,3 +13,17 @@ def statistics(request):
 @login_required
 def statistics_this_month(request):
     return render(request, 'statistics/statistics_this_month.html', {'statistics': Statistics(request.user)})
+
+
+@login_required
+def goals(request):
+    return render(request, 'statistics/goals.html', {'goals': Goals(request.user)})
+
+
+@login_required
+def add_goal(request):
+    goals = Goals(request.user)
+
+    if request.method == "POST":
+        goals.set(request.POST['name'], request.POST['volume'])
+        return redirect('goals')
