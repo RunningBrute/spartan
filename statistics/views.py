@@ -27,3 +27,13 @@ def add_goal(request):
     if request.method == "POST":
         goals.set(request.POST['name'], request.POST['volume'])
         return redirect('goals')
+
+
+@login_required
+def delete_goal(request):
+    goals = Goals(request.user)
+
+    if request.method == "POST":
+        goals.delete(request.POST['name'])
+
+    return redirect('goals')
