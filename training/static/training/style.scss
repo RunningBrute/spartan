@@ -458,3 +458,17 @@ nav {
         margin-bottom: 0.5em;
     }
 }
+
+.percent-bar {
+    margin-top: 0.5em;
+    display: block;
+    height: 2px;
+    background-color: #222;
+    overflow: hidden;
+
+    div {
+        height: 2px;
+        background-color: green;
+        display: block;
+    }
+}

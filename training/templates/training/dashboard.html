@@ -20,7 +20,10 @@
             <dt>{{ goal.name }}</dt>
             <dd>{{ goal.progress }} out of {{ goal.volume }}</dd>
             <dd>{{ goal.percent }}% done</dd>
+            <dd><div class="percent-bar"><div style="width: {{ goal.percent }}%"> </div></div></dd>
         </dl>
+    {% empty %}
+        <p class="note">You have no goals defined, go ahead and add some.</p>
     {% endfor %}
 </section>
 
