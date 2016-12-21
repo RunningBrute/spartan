@@ -12,6 +12,7 @@ from django import forms
 
 from .models import *
 from statistics.statistics import *
+from statistics.goals import Goals
 from . import gpx
 from training import userprof
 from training import heatmap
@@ -46,7 +47,10 @@ def user_profile(request):
 
 @login_required
 def dashboard(request):
-    return render(request, 'training/dashboard.html', {'statistics': Statistics(request.user)})
+    statistics = Statistics(request.user)
+    goals = Goals(statistics)
+    return render(request, 'training/dashboard.html', {'statistics': statistics,
+                                                       'goals': goals})
 
 
 @login_required

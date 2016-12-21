@@ -13,6 +13,17 @@
     {% endfor %}
 </section>
 
+<h2>goals | <a href="{% url 'goals' %}">manage</a></h2>
+<section class="quick_stats">
+    {% for goal in goals.all %}
+        <dl class="metric">
+            <dt>{{ goal.name }}</dt>
+            <dd>{{ goal.volume }}</dd>
+            <dd>{{ goal.progress }}% done</dd>
+        </dl>
+    {% endfor %}
+</section>
+
 {% load training_format %}
 {% load el_pagination_tags %}
 
