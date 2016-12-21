@@ -207,12 +207,13 @@ form {
 
 dl {
     @include fancy_box(#222);
-    margin-right: 0.5em;
+    margin-right: 0.2em;
     margin-bottom: 0.5em;
     overflow: hidden;
     display: inline-block;
     font-size: smaller;
     min-width: 7em;
+    white-space: nowrap;
 
     dt {
         @include text1;
@@ -441,6 +442,11 @@ nav {
     }
 
     dt {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    dd {
         text-overflow: ellipsis;
         overflow: hidden;
     }
