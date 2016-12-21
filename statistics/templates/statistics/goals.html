@@ -6,16 +6,25 @@
 
 <h2>your monthly goals</h2>
 <section>
+    <table>
+    <tr>
+        <th>name</th>
+        <th>goal</th>
+        <th>progress</th>
+        <th>%</th>
+    </tr>
     {% for goal in goals.all %}
-        <dl class="metric">
-            <dt>{{ goal.name }}</dt>
-            <dd>{{ goal.volume }}</dd>
-            <dd>{{ goal.progress }}% done</dd>
-        </dl>
+        <tr>
+            <td>{{ goal.name }}</td>
+            <td>{{ goal.volume }}</td>
+            <td>{{ goal.progress }}</td>
+            <td>{{ goal.percent }}%</td>
+        </tr>
     {% endfor %}
+    </table>
 </section>
 
-<h2>add new goal</h2>
+<h2>add new or modify existing goal</h2>
 <section>
     <form action="{% url 'add_goal' %}" method="post">
         {% csrf_token %}
