@@ -20,40 +20,35 @@ def km_from_m(m):
 
 class Volume:
     def __init__(self, reps:int=None, meters:int=None):
-        self.reps = reps
-        self.meters = meters
-
-        if not self._valid():
-            raise ValueError("one of reps or meters must be set")
+        self.distance = meters is not None
+        self.multiplier = 1000 if self.distance else 1
+        self.value = meters if self.distance else reps
 
     def __str__(self):
-        if self.reps is not None:
-            return str(self.reps)
+        if self.distance:
+            return km_from_m(self.value)
         else:
-            return km_from_m(self.meters)
+            return str(self.value)
 
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.reps == other.reps and self.meters == other.meters
+        return self.value == other.value
 
     def __add__(self, other):
-        if self.reps is not None:
-            return Volume(reps=self.reps + other.reps)
-        else:
-            return Volume(meters=self.meters + other.meters)
+        return self._make_new(self.value + other.value)
 
-    def left_to(self, goal: int):
-        if self.reps is not None:
-            return Volume(reps=goal - self.reps)
+    def left_to(self, goal: int) -> str:
+        new = goal * self.multiplier - self.value
+        val = self._make_new(abs(new))
+
+        if new > 0:
+            return "{} left".format(val)
         else:
-            return Volume(meters=goal * 1000 - self.meters)
+            return "done"
 
     def number(self):
-        if self.reps is not None:
-            return self.reps
-        else:
-            return self.meters / 1000
+        return self.value / self.multiplier
 
-    def _valid(self):
-        return (self.reps is None) != (self.meters is None)
+    def _make_new(self, value):
+        return Volume(meters=value) if self.distance else Volume(reps=value)
