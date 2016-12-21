@@ -47,8 +47,8 @@ def user_profile(request):
 
 @login_required
 def dashboard(request):
-    statistics = Statistics(request.user)
-    goals = Goals(statistics)
+    statistics = Statistics(request.user) # type: Statistics
+    goals = Goals(request.user)
     return render(request, 'training/dashboard.html', {'statistics': statistics,
                                                        'goals': goals})
 
