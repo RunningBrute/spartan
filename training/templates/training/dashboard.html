@@ -18,7 +18,7 @@
     {% for goal in goals.all %}
         <dl class="metric">
             <dt>{{ goal.name }}</dt>
-            <dd>{{ goal.progress }} out of {{ goal.volume }}</dd>
+            <dd>{{ goal.left }} left</dd>
             <dd>{{ goal.percent }}% done</dd>
             <dd><div class="percent-bar"><div style="width: {{ goal.percent }}%"> </div></div></dd>
         </dl>

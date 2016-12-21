@@ -8,7 +8,7 @@ from statistics import models
 from statistics.statistics import Statistics
 
 
-Goal = collections.namedtuple('Goal', ['name', 'volume', 'progress', 'percent'])
+Goal = collections.namedtuple('Goal', ['name', 'volume', 'progress', 'percent', 'left'])
 
 
 class Goals:
@@ -30,6 +30,7 @@ class Goals:
             return Goal(name=goal.name,
                         volume=goal.volume,
                         progress=current,
-                        percent=round(current.number() / goal.volume * 100))
+                        percent=round(current.number() / goal.volume * 100),
+                        left=goal.volume - current.number())
 
         return [make_goal(g) for g in models.Goal.objects.filter(user=self.user)]
