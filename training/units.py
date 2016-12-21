@@ -10,6 +10,8 @@ def mpkm_from_mps(m_per_s):
 def km_from_m(m):
     if m is None:
         return None
+    elif m > 100000:
+        return '{}km'.format(round(m / 1000))
     elif m > 999:
         return '{0:.2f}km'.format(round(m / 1000, 2))
     else:
@@ -40,6 +42,12 @@ class Volume:
             return Volume(reps=self.reps + other.reps)
         else:
             return Volume(meters=self.meters + other.meters)
+
+    def left_to(self, goal: int):
+        if self.reps is not None:
+            return Volume(reps=goal - self.reps)
+        else:
+            return Volume(meters=goal * 1000 - self.meters)
 
     def number(self):
         if self.reps is not None:
