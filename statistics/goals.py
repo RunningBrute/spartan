@@ -19,6 +19,9 @@ class Goals:
     def set(self, name: str, volume: int) -> None:
         models.Goal.objects.update_or_create(user=self.user, name=name, defaults={'volume': volume})
 
+    def delete(self, name: str) -> None:
+        models.Goal.objects.filter(user=self.user, name=name).delete()
+
     def all(self) -> List[Goal]:
         volumes = {f['name']: f['volume'] for f in self.statistics.favourites_this_month()}
 

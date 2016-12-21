@@ -46,6 +46,20 @@ class StatisticsTestCase(TestCase):
 
         self.assertEqual([50, 200], [g.volume for g in user_goals.all()])
 
+    def test_delete_goal(self):
+        user_goals = goals.Goals(self.user)
+        user_goals.set("push-up", 100)
+
+        other_user_goals = goals.Goals(self.other_user)
+        other_user_goals.set("push-up", 1000)
+
+        self.assertEqual(1, len(user_goals.all()))
+
+        user_goals.delete("push-up")
+
+        self.assertEqual(1, len(other_user_goals.all()))
+        self.assertEqual(0, len(user_goals.all()))
+
     def test_goal_properties(self):
         with patch('statistics.goals.Statistics', autospec=True) as StatisticsMock:
             statistics_mock = StatisticsMock.return_value
@@ -55,10 +69,10 @@ class StatisticsTestCase(TestCase):
 
             statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=0)}]
             all_goals = user_goals.all()
-            self.assertEqual(0, all_goals[0].progress)
+            self.assertEqual(units.Volume(0), all_goals[0].progress)
             self.assertEqual(0, all_goals[0].percent)
 
             statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=1)}]
             all_goals = user_goals.all()
-            self.assertEqual(1, all_goals[0].progress)
+            self.assertEqual(units.Volume(reps=1), all_goals[0].progress)
             self.assertEqual(33, all_goals[0].percent)
