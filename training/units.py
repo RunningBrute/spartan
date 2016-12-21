@@ -45,7 +45,7 @@ class Volume:
         if self.reps is not None:
             return self.reps
         else:
-            return self.meters
+            return self.meters / 1000
 
     def _valid(self):
         return (self.reps is None) != (self.meters is None)

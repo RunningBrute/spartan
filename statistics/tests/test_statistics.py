@@ -56,7 +56,9 @@ class StatisticsTestCase(TestCase):
             statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=0)}]
             all_goals = user_goals.all()
             self.assertEqual(0, all_goals[0].progress)
+            self.assertEqual(0, all_goals[0].percent)
 
             statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=1)}]
             all_goals = user_goals.all()
-            self.assertEqual(33, all_goals[0].progress)
+            self.assertEqual(1, all_goals[0].progress)
+            self.assertEqual(33, all_goals[0].percent)

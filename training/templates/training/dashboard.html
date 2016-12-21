@@ -18,8 +18,8 @@
     {% for goal in goals.all %}
         <dl class="metric">
             <dt>{{ goal.name }}</dt>
-            <dd>{{ goal.volume }}</dd>
-            <dd>{{ goal.progress }}% done</dd>
+            <dd>{{ goal.progress }} out of {{ goal.volume }}</dd>
+            <dd>{{ goal.percent }}% done</dd>
         </dl>
     {% endfor %}
 </section>
