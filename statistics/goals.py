@@ -31,6 +31,6 @@ class Goals:
                         volume=goal.volume,
                         progress=current,
                         percent=round(current.number() / goal.volume * 100),
-                        left=goal.volume - current.number())
+                        left=round(goal.volume - current.number()))
 
         return [make_goal(g) for g in models.Goal.objects.filter(user=self.user)]
