@@ -69,40 +69,20 @@ class Statistics:
 
         return source
 
-    def _gps_workouts(self, time_range):
-        return self._activities_in_range(Gpx.objects, time_range)
+    def _most_popular_gps_workouts(self, time_range) -> Iterable[PopularWorkout]:
+        workouts = self._activities_in_range(Gpx.objects, time_range)
 
-    def _strength_workouts(self, time_range):
-        return self._activities_in_range(Excercise.objects, time_range)
-
-    def most_popular_workouts(self, time_range=None) -> Iterable[PopularWorkout]:
-        gps_workouts = self._gps_workouts(time_range) \
-                           .values('activity_type') \
-                           .annotate(count=Count('activity_type'),
-                                     earliest=Min('workout__started'),
-                                     latest=Max('workout__started')) \
-                           .order_by('-count')
-
-        strength_workouts = self._strength_workouts(time_range) \
-                                .values('name') \
-                                .annotate(count=Count('name'),
-                                          earliest=Min('workout__started'),
-                                          latest=Max('workout__started')) \
-                                .order_by('-count')
+        annotated = workouts.values('activity_type') \
+                            .annotate(count=Count('activity_type'),
+                                      earliest=Min('workout__started'),
+                                      latest=Max('workout__started')) \
+                            .order_by('-count')
 
         def total_distance(workout_type):
-            meters = self._gps_workouts(time_range) \
-                         .filter(activity_type=workout_type) \
-                         .aggregate(value=Sum('distance'))['value']
+            meters = workouts.filter(activity_type=workout_type) \
+                             .aggregate(value=Sum('distance'))['value']
 
             return units.Volume(meters=meters if meters else 0)
-
-        def total_reps(excercise_name):
-            reps = self._strength_workouts(time_range) \
-                       .filter(name=excercise_name) \
-                       .aggregate(value=Sum('reps__reps'))['value']
-
-            return units.Volume(reps=reps if reps else 0)
 
         def decorate_gps_workout(workout):
             return PopularWorkout(name=workout['activity_type'],
@@ -111,6 +91,23 @@ class Statistics:
                                   earliest=workout['earliest'],
                                   latest=workout['latest'])
 
+        return [decorate_gps_workout(w) for w in annotated]
+
+    def _most_popular_strength_workouts(self, time_range) -> Iterable[PopularWorkout]:
+        workouts = self._activities_in_range(Excercise.objects, time_range)
+
+        annotated = workouts.values('name') \
+                            .annotate(count=Count('name'),
+                                      earliest=Min('workout__started'),
+                                      latest=Max('workout__started')) \
+                            .order_by('-count')
+
+        def total_reps(excercise_name):
+            reps = workouts.filter(name=excercise_name) \
+                           .aggregate(value=Sum('reps__reps'))['value']
+
+            return units.Volume(reps=reps if reps else 0)
+
         def decorate_strength_workout(workout):
             return PopularWorkout(name=workout['name'],
                                   count=workout['count'],
@@ -118,8 +115,11 @@ class Statistics:
                                   earliest=workout['earliest'],
                                   latest=workout['latest'])
 
-        excercises = (list(map(decorate_gps_workout, gps_workouts))
-                    + list(map(decorate_strength_workout, strength_workouts)))
+        return [decorate_strength_workout(w) for w in annotated]
+
+    def most_popular_workouts(self, time_range=None) -> Iterable[PopularWorkout]:
+        excercises = (self._most_popular_gps_workouts(time_range)
+                      + self._most_popular_strength_workouts(time_range))
 
         return sorted(excercises, key=lambda e: e.count, reverse=True)
 
