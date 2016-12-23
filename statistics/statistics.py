@@ -75,21 +75,23 @@ class Statistics:
 
         return source
 
-    def _gps_workouts(self, time_begin=None, time_end=None):
-        return self._activities_in_range(Gpx.objects, TimeRange(time_begin, time_end))
+    def _gps_workouts(self, time_range):
+        return self._activities_in_range(Gpx.objects, time_range)
 
-    def _strength_workouts(self, time_begin=None, time_end=None):
-        return self._activities_in_range(Excercise.objects, TimeRange(time_begin, time_end))
+    def _strength_workouts(self, time_range):
+        return self._activities_in_range(Excercise.objects, time_range)
 
     def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
-        gps_workouts = self._gps_workouts(time_begin, time_end) \
+        time_range = TimeRange(time_begin, time_end)
+
+        gps_workouts = self._gps_workouts(time_range) \
                            .values('activity_type') \
                            .annotate(count=Count('activity_type'),
                                      earliest=Min('workout__started'),
                                      latest=Max('workout__started')) \
                            .order_by('-count')
 
-        strength_workouts = self._strength_workouts(time_begin, time_end) \
+        strength_workouts = self._strength_workouts(time_range) \
                                 .values('name') \
                                 .annotate(count=Count('name'),
                                           earliest=Min('workout__started'),
@@ -97,14 +99,14 @@ class Statistics:
                                 .order_by('-count')
 
         def total_distance(workout_type):
-            meters = self._gps_workouts(time_begin, time_end) \
+            meters = self._gps_workouts(time_range) \
                          .filter(activity_type=workout_type) \
                          .aggregate(value=Sum('distance'))['value']
 
             return units.Volume(meters=meters if meters else 0)
 
         def total_reps(excercise_name):
-            reps = self._strength_workouts(time_begin, time_end) \
+            reps = self._strength_workouts(time_range) \
                        .filter(name=excercise_name) \
                        .aggregate(value=Sum('reps__reps'))['value']
 
