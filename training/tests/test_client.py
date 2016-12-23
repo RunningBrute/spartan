@@ -121,13 +121,13 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(datetime.datetime(2016, 7, 30, 6, 22, 7, tzinfo=pytz.utc), workout.finished)
 
         gpx_workout = workout.gpx_set.get()
-        self.assertEqual("running", gpx_workout.activity_type)
+        self.assertEqual("running", gpx_workout.name)
         self.assertEqual(4, gpx_workout.distance)
 
-    def _import_gpx_and_check_activity_type(self, filename, activity_type):
+    def _import_gpx_and_check_activity_type(self, filename, name):
         self._import_gpx(filename)
         workout = self._get_latest_workout_from_dashboard()
-        self.assertEqual(activity_type, workout.workout_type)
+        self.assertEqual(name, workout.workout_type)
 
     def test_import_activity_type_from_gpx(self):
         self._login()
@@ -331,3 +331,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         form = self.get('/user_profile').context['form']
         self.assertEqual('UTC', form.initial['timezone'])
+
+    def test_showing_empty_explorer_page(self):
+        self._login()
+        self.get('/explorer')

@@ -72,22 +72,22 @@ class Statistics:
     def _most_popular_gps_workouts(self, time_range) -> Iterable[PopularWorkout]:
         workouts = self._activities_in_range(Gpx.objects, time_range)
 
-        annotated = workouts.values('activity_type') \
-                            .annotate(count=Count('activity_type'),
+        annotated = workouts.values('name') \
+                            .annotate(count=Count('name'),
                                       earliest=Min('workout__started'),
                                       latest=Max('workout__started')) \
                             .order_by('-count')
 
         def total_distance(workout_type):
-            meters = workouts.filter(activity_type=workout_type) \
+            meters = workouts.filter(name=workout_type) \
                              .aggregate(value=Sum('distance'))['value']
 
             return units.Volume(meters=meters if meters else 0)
 
         def decorate_gps_workout(workout):
-            return PopularWorkout(name=workout['activity_type'],
+            return PopularWorkout(name=workout['name'],
                                   count=workout['count'],
-                                  volume=total_distance(workout['activity_type']),
+                                  volume=total_distance(workout['name']),
                                   earliest=workout['earliest'],
                                   latest=workout['latest'])
 

@@ -16,7 +16,7 @@ class Workout(models.Model):
 
     @property
     def workout_type(self):
-        from_gpx = list(map(lambda x: x.activity_type.lower(), self.gpx_set.all()))
+        from_gpx = list(map(lambda x: x.name.lower(), self.gpx_set.all()))
         return from_gpx[0] if len(from_gpx) > 0 else 'strength'
 
     started = models.DateTimeField(null=True, default=None)
@@ -119,7 +119,7 @@ class SportField(models.CharField):
 
 class Gpx(models.Model):
     workout = models.ForeignKey(Workout)
-    activity_type = SportField(max_length=20)
+    name = SportField(max_length=20)
     distance = models.IntegerField(null=True, default=None)
 
     def points_as_json(self):

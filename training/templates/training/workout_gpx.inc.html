@@ -9,7 +9,7 @@
 <script src="{% static 'training/activity_charts.js' %}"></script>
 <script src="{% static 'training/activity_map.js' %}"></script>
 
-<h2>{{ gpx.activity_type }}, {{ workout.started }}</h2>
+<h2>{{ gpx.name }}, {{ workout.started }}</h2>
 <section>
     <dl class="metric"><dt>distance</dt><dd>{{ gpx.distance|distance }}</dd></dl>
     <dl class="metric"><dt>time</dt><dd>{{ workout.duration }}</dd></dl>

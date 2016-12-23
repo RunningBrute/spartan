@@ -22,27 +22,27 @@ def _process_points(points):
     return list({point_to_hexagon(_web_mercator(point)) for point in points})
 
 
-ACTIVITIES = [{'activity_type': 'running', 'color': 'blue'},
-              {'activity_type': 'cycling', 'color': 'red'},
-              {'activity_type': 'walking', 'color': 'green'}]
+ACTIVITIES = [{'name': 'running', 'color': 'blue'},
+              {'name': 'cycling', 'color': 'red'},
+              {'name': 'walking', 'color': 'green'}]
 
 
-def _collect_points(user, activity_type, days=None):
+def _collect_points(user, name, days=None):
     points = models.GpxTrackPoint.objects.filter(gpx__workout__user=user)
 
     if days is not None:
         date = timezone.now() - datetime.timedelta(days=days)
         points = points.filter(time__gt=date)
 
-    points = points.filter(gpx__activity_type=activity_type)
+    points = points.filter(gpx__name=name)
     points = points.values_list('lon', 'lat')
     return _process_points(points)
 
 
 def _make_activity(user, activity, days):
-    return {'activity_type': activity['activity_type'],
+    return {'name': activity['name'],
             'color': activity['color'],
-            'points': _collect_points(user, activity['activity_type'], days)}
+            'points': _collect_points(user, activity['name'], days)}
 
 
 def generate_heatmap(user, days=None):

@@ -11,10 +11,10 @@
 <section>
     {% for activity in heatmap.activities %}
         {% with 'training/hexagon-'|add:activity.color|add:'.png' as icon %}
-            <dl class="metric interactive active" onclick="toggleLayer(this, '{{ activity.activity_type }}')">
+            <dl class="metric interactive active" onclick="toggleLayer(this, '{{ activity.name }}')">
                 <dt>
                     <img src="{% static icon %}" width="8" height="8" />
-                    {{ activity.activity_type }}
+                    {{ activity.name }}
                 </dt>
                 <dd>
                     {{ activity.points|length }}
@@ -41,23 +41,23 @@ function makeIconStyle(src) {
 var activities = {
     {% for activity in heatmap.activities %}
         {% with 'training/hexagon-'|add:activity.color|add:'.png' as icon %}
-            '{{ activity.activity_type }}': makeIconStyle('{% static icon %}'),
+            '{{ activity.name }}': makeIconStyle('{% static icon %}'),
         {% endwith %}
     {% endfor %}
 };
 
 function scaleStyles(scale, opacity) {
-    for (activity_type in activities) {
-        activities[activity_type].getImage().setScale(scale);
-        activities[activity_type].getImage().setOpacity(opacity);
+    for (name in activities) {
+        activities[name].getImage().setScale(scale);
+        activities[name].getImage().setOpacity(opacity);
     }
 }
 
-function getActivityStyle(activity_type) {
-    if (activity_type in activities) {
-        return activities[activity_type];
+function getActivityStyle(name) {
+    if (name in activities) {
+        return activities[name];
     } else {
-        console.log("no style defined for " + activity_type);
+        console.log("no style defined for " + name);
     }
 }
 
@@ -84,11 +84,11 @@ function makeHeatmapLayer(activity) {
             {
                 scaleStyles(0.2, 0.1);
             }
-            return getActivityStyle(activity.activity_type);
+            return getActivityStyle(activity.name);
         }
     });
 
-    layer.name = activity.activity_type;
+    layer.name = activity.name;
 
     return layer
 }
