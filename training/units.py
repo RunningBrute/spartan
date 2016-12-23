@@ -19,7 +19,7 @@ def km_from_m(m):
 
 
 class Volume:
-    def __init__(self, reps:int=None, meters:int=None):
+    def __init__(self, reps:int=None, meters:int=None) -> None:
         self.distance = meters is not None
         self.multiplier = 1000 if self.distance else 1
         self.value = meters if self.distance else reps
