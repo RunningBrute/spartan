@@ -157,22 +157,22 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         statistics = self._get_statistics_from_dashboard()
         excercises = statistics.most_popular_workouts()
 
-        self.assertEqual('running', excercises[0]['name'])
-        self.assertEqual(3, excercises[0]['count'])
-        self.assertEqual(units.Volume(meters=8), excercises[0]['volume'])
-        self.assertEqual(time(2016, 7, 30, 6, 22, 5), excercises[0]['earliest'])
-        self.assertEqual(time(2016, 8, 30, 6, 22, 5), excercises[0]['latest'])
+        self.assertEqual('running', excercises[0].name)
+        self.assertEqual(3, excercises[0].count)
+        self.assertEqual(units.Volume(meters=8), excercises[0].volume)
+        self.assertEqual(time(2016, 7, 30, 6, 22, 5), excercises[0].earliest)
+        self.assertEqual(time(2016, 8, 30, 6, 22, 5), excercises[0].latest)
 
-        self.assertEqual('push-up', excercises[1]['name'])
-        self.assertEqual(2, excercises[1]['count'])
-        self.assertEqual(units.Volume(reps=15), excercises[1]['volume'])
-        self.assertEqual(pushups.started, excercises[1]['earliest'])
-        self.assertEqual(more_pushups.started, excercises[1]['latest'])
+        self.assertEqual('push-up', excercises[1].name)
+        self.assertEqual(2, excercises[1].count)
+        self.assertEqual(units.Volume(reps=15), excercises[1].volume)
+        self.assertEqual(pushups.started, excercises[1].earliest)
+        self.assertEqual(more_pushups.started, excercises[1].latest)
 
-        self.assertEqual('cycling', excercises[2]['name'])
-        self.assertEqual(1, excercises[2]['count'])
-        self.assertEqual(units.Volume(meters=4), excercises[2]['volume'])
-        self.assertEqual(time(2016, 6, 30, 6, 22, 5), excercises[2]['earliest'])
+        self.assertEqual('cycling', excercises[2].name)
+        self.assertEqual(1, excercises[2].count)
+        self.assertEqual(units.Volume(meters=4), excercises[2].volume)
+        self.assertEqual(time(2016, 6, 30, 6, 22, 5), excercises[2].earliest)
 
     def test_most_popular_gps_workouts_during_timespan(self):
         self._login()
@@ -183,12 +183,12 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         popular = statistics.most_popular_workouts()
 
-        self.assertEqual(units.Volume(meters=8), popular[0]['volume'])
+        self.assertEqual(units.Volume(meters=8), popular[0].volume)
 
         popular = statistics.most_popular_workouts(time(2016, 7, 1, 0, 0, 0),
                                                    time(2016, 7, 30, 23, 59, 59))
 
-        self.assertEqual(units.Volume(meters=4), popular[0]['volume'])
+        self.assertEqual(units.Volume(meters=4), popular[0].volume)
 
     def test_most_popular_strength_workouts_during_timespan(self):
         self._login()
@@ -206,13 +206,13 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         popular = statistics.most_popular_workouts()
 
-        self.assertEqual(units.Volume(reps=44), popular[0]['volume'])
+        self.assertEqual(units.Volume(reps=44), popular[0].volume)
 
         popular = statistics.most_popular_workouts(time(2016, 7, 1, 0, 0, 0),
                                                    time(2016, 7, 30, 23, 59, 59))
 
-        self.assertEqual(1, popular[0]['count'])
-        self.assertEqual(units.Volume(reps=22), popular[0]['volume'])
+        self.assertEqual(1, popular[0].count)
+        self.assertEqual(units.Volume(reps=22), popular[0].volume)
 
     def test_most_popular_workouts_this_month(self):
         self._login()
@@ -235,13 +235,13 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         month = statistics.favourites_this_month(now=time(2016, 7, 31))
 
         self.assertEqual(2, len(month))
-        self.assertEqual('running', month[0]['name'])
-        self.assertEqual(1, month[0]['count'])
-        self.assertEqual(units.Volume(meters=4), month[0]['volume'])
+        self.assertEqual('running', month[0].name)
+        self.assertEqual(1, month[0].count)
+        self.assertEqual(units.Volume(meters=4), month[0].volume)
 
-        self.assertEqual('push-up', month[1]['name'])
-        self.assertEqual(1, month[1]['count'])
-        self.assertEqual(units.Volume(reps=22), month[1]['volume'])
+        self.assertEqual('push-up', month[1].name)
+        self.assertEqual(1, month[1].count)
+        self.assertEqual(units.Volume(reps=22), month[1].volume)
 
     def test_most_common_reps(self):
         self._login()

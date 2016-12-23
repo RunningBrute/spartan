@@ -67,12 +67,14 @@ class StatisticsTestCase(TestCase):
             user_goals = goals.Goals(self.user)
             user_goals.set('push-up', 3)
 
-            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=0)}]
+            push_ups = statistics.PopularWorkout(name='push-up', count=1, volume=units.Volume(reps=0), earliest=None, latest=None)
+            statistics_mock.favourites_this_month.return_value = [push_ups]
             all_goals = user_goals.all()
             self.assertEqual(units.Volume(0), all_goals[0].progress)
             self.assertEqual(0, all_goals[0].percent)
 
-            statistics_mock.favourites_this_month.return_value = [{'name': 'push-up', 'volume': units.Volume(reps=1)}]
+            other_push_ups = statistics.PopularWorkout(name='push-up', count=1, volume=units.Volume(reps=1), earliest=None, latest=None)
+            statistics_mock.favourites_this_month.return_value = [other_push_ups]
             all_goals = user_goals.all()
             self.assertEqual(units.Volume(reps=1), all_goals[0].progress)
             self.assertEqual(33, all_goals[0].percent)

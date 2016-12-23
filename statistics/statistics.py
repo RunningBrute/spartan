@@ -1,6 +1,8 @@
 import datetime
 import logging
 import arrow
+import collections
+from typing import Iterable
 
 from django.db.models import Sum, Min, Max
 from django.utils import timezone
@@ -69,6 +71,9 @@ def _filter_by_timespan(source, start, end):
         return source
 
 
+PopularWorkout = collections.namedtuple('PopularWorkout', ['name', 'count', 'volume', 'earliest', 'latest'])
+
+
 class Statistics:
     def __init__(self, user):
         self.user = user
@@ -83,7 +88,7 @@ class Statistics:
     def _strength_workouts(self, time_begin=None, time_end=None):
         return _filter_by_timespan(Excercise.objects, time_begin, time_end).filter(workout__user=self.user)
 
-    def most_popular_workouts(self, time_begin=None, time_end=None):
+    def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
         gps_workouts = self._gps_workouts(time_begin, time_end) \
                            .values('activity_type') \
                            .annotate(count=Count('activity_type'),
@@ -113,23 +118,23 @@ class Statistics:
             return units.Volume(reps=reps if reps else 0)
 
         def decorate_gps_workout(workout):
-            return {'name': workout['activity_type'],
-                    'count': workout['count'],
-                    'volume': total_distance(workout['activity_type']),
-                    'earliest': workout['earliest'],
-                    'latest': workout['latest']}
+            return PopularWorkout(name=workout['activity_type'],
+                                  count=workout['count'],
+                                  volume=total_distance(workout['activity_type']),
+                                  earliest=workout['earliest'],
+                                  latest=workout['latest'])
 
         def decorate_strength_workout(workout):
-            return {'name': workout['name'],
-                    'count': workout['count'],
-                    'volume': total_reps(workout['name']),
-                    'earliest': workout['earliest'],
-                    'latest': workout['latest']}
+            return PopularWorkout(name=workout['name'],
+                                  count=workout['count'],
+                                  volume=total_reps(workout['name']),
+                                  earliest=workout['earliest'],
+                                  latest=workout['latest'])
 
         excercises = (list(map(decorate_gps_workout, gps_workouts))
                     + list(map(decorate_strength_workout, strength_workouts)))
 
-        return sorted(excercises, key=lambda e: e['count'], reverse=True)
+        return sorted(excercises, key=lambda e: e.count, reverse=True)
 
     def weeks(self, start=datetime.datetime.utcnow()):
 
