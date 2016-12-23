@@ -12,20 +12,6 @@ from training import units
 from training import dates
 
 
-def workouts_time_bounds(user):
-    workouts = Workout.objects.filter(user=user, started__isnull=False)
-
-    try:
-        latest_workout = workouts.latest("started")
-        earliest_workout = workouts.earliest("started")
-
-        return latest_workout.started, earliest_workout.started
-
-    except Exception as e:
-        logging.warn(str(e))
-        return None, None
-
-
 class Day:
     def __init__(self, start_time):
         self.start_time = start_time
@@ -136,21 +122,24 @@ class Statistics:
 
         return sorted(excercises, key=lambda e: e.count, reverse=True)
 
+    def _first_time_working_out(self):
+        workouts = Workout.objects.filter(user=self.user, started__isnull=False)
+
+        try:
+            return workouts.earliest("started").started
+        except Exception as e:
+            logging.warn(str(e))
+            return None
+
     def weeks(self, start=datetime.datetime.utcnow()):
-
-        def make_week(week_bounds):
-            return Week(self, *week_bounds)
-
-        _, end_time = workouts_time_bounds(self.user)
+        end_time = self._first_time_working_out()
 
         logging.debug("building weeks up to {}".format(end_time))
 
         if end_time is None:
             return []
 
-        result = list(map(make_week, dates.week_range(start=start, end=end_time)))
-
-        return result
+        return [Week(self, *week_bounds) for week_bounds in dates.week_range(start=start, end=end_time)]
 
     def previous_workouts(self, begin=None, end=None):
         if begin is not None and end is not None:
