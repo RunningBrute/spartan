@@ -12,12 +12,6 @@ from training import units
 from training import dates
 
 
-class TimeRange:
-    def __init__(self, start, end) -> None:
-        self.start = start
-        self.end = end
-
-
 class Day:
     def __init__(self, start_time):
         self.start_time = start_time
@@ -82,7 +76,7 @@ class Statistics:
         return self._activities_in_range(Excercise.objects, time_range)
 
     def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
-        time_range = TimeRange(time_begin, time_end)
+        time_range = dates.TimeRange(time_begin, time_end)
 
         gps_workouts = self._gps_workouts(time_range) \
                            .values('activity_type') \

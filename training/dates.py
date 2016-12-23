@@ -4,6 +4,12 @@ import datetime
 from django.utils import timezone
 
 
+class TimeRange:
+    def __init__(self, start, end) -> None:
+        self.start = start
+        self.end = end
+
+
 def week_range(number=None, end=None, start=timezone.now()):
     if number is None and end is None:
         raise AttributeError("number or end parameter must be provided")
