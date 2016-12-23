@@ -114,7 +114,8 @@ class SportField(models.CharField):
         super(SportField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
-        return super(SportField, self).get_prep_value(value).lower()
+        v = super(SportField, self).get_prep_value(value)
+        return v.lower() if v else None
 
 
 class Gpx(models.Model):
