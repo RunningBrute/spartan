@@ -69,6 +69,10 @@ class Statistics:
 
         return source
 
+    def _sum_volume(self, source, volume_field):
+        value = source.aggregate(value=Sum(volume_field))['value']
+        return value if value else 0
+
     def _most_popular_gps_workouts(self, time_range) -> Iterable[PopularWorkout]:
         workouts = self._activities_in_range(Gpx.objects, time_range)
 
@@ -79,10 +83,8 @@ class Statistics:
                             .order_by('-count')
 
         def total_distance(workout_type):
-            meters = workouts.filter(name=workout_type) \
-                             .aggregate(value=Sum('distance'))['value']
-
-            return units.Volume(meters=meters if meters else 0)
+            meters = self._sum_volume(workouts.filter(name=workout_type), 'distance')
+            return units.Volume(meters=meters)
 
         def decorate_gps_workout(workout):
             return PopularWorkout(name=workout['name'],
@@ -103,10 +105,8 @@ class Statistics:
                             .order_by('-count')
 
         def total_reps(excercise_name):
-            reps = workouts.filter(name=excercise_name) \
-                           .aggregate(value=Sum('reps__reps'))['value']
-
-            return units.Volume(reps=reps if reps else 0)
+            value = self._sum_volume(workouts.filter(name=excercise_name), 'reps__reps')
+            return units.Volume(reps=value)
 
         def decorate_strength_workout(workout):
             return PopularWorkout(name=workout['name'],
