@@ -1,4 +1,5 @@
 import collections
+import enum
 from typing import List
 
 from django.contrib.auth.models import User
@@ -8,6 +9,7 @@ from statistics import models
 from statistics.statistics import Statistics
 
 
+Forecast = enum.Enum('Forecast', ['AHEAD', 'ON_TRACK', 'BEHIND'])
 Goal = collections.namedtuple('Goal', ['name', 'volume', 'progress', 'percent', 'left'])
 
 
