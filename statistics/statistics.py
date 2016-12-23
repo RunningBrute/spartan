@@ -12,6 +12,12 @@ from training import units
 from training import dates
 
 
+class TimeRange:
+    def __init__(self, start, end) -> None:
+        self.start = start
+        self.end = end
+
+
 class Day:
     def __init__(self, start_time):
         self.start_time = start_time
@@ -61,19 +67,19 @@ class Statistics:
         months = list(dates.month_range(1, start=now))
         return self.most_popular_workouts(*months[0])
 
-    def _activities_in_range(self, source, time_begin=None, time_end=None):
+    def _activities_in_range(self, source, time_range=None):
         source = source.filter(workout__user=self.user)
 
-        if time_begin is not None and time_end is not None:
-            source = source.filter(workout__started__gte=time_begin, workout__started__lt=time_end)
+        if None not in [time_range.start, time_range.end]:
+            source = source.filter(workout__started__gte=time_range.start, workout__started__lt=time_range.end)
 
         return source
 
     def _gps_workouts(self, time_begin=None, time_end=None):
-        return self._activities_in_range(Gpx.objects, time_begin, time_end)
+        return self._activities_in_range(Gpx.objects, TimeRange(time_begin, time_end))
 
     def _strength_workouts(self, time_begin=None, time_end=None):
-        return self._activities_in_range(Excercise.objects, time_begin, time_end)
+        return self._activities_in_range(Excercise.objects, TimeRange(time_begin, time_end))
 
     def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
         gps_workouts = self._gps_workouts(time_begin, time_end) \
