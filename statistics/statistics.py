@@ -50,13 +50,6 @@ class Week:
         return reversed(days)
 
 
-def _filter_by_timespan(source, start, end):
-    if start is not None and end is not None:
-        return source.filter(workout__started__gte=start, workout__started__lt=end)
-    else:
-        return source
-
-
 PopularWorkout = collections.namedtuple('PopularWorkout', ['name', 'count', 'volume', 'earliest', 'latest'])
 
 
@@ -68,11 +61,19 @@ class Statistics:
         months = list(dates.month_range(1, start=now))
         return self.most_popular_workouts(*months[0])
 
+    def _activities_in_range(self, source, time_begin=None, time_end=None):
+        source = source.filter(workout__user=self.user)
+
+        if time_begin is not None and time_end is not None:
+            source = source.filter(workout__started__gte=time_begin, workout__started__lt=time_end)
+
+        return source
+
     def _gps_workouts(self, time_begin=None, time_end=None):
-        return _filter_by_timespan(Gpx.objects, time_begin, time_end).filter(workout__user=self.user)
+        return self._activities_in_range(Gpx.objects, time_begin, time_end)
 
     def _strength_workouts(self, time_begin=None, time_end=None):
-        return _filter_by_timespan(Excercise.objects, time_begin, time_end).filter(workout__user=self.user)
+        return self._activities_in_range(Excercise.objects, time_begin, time_end)
 
     def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
         gps_workouts = self._gps_workouts(time_begin, time_end) \
