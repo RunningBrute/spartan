@@ -73,23 +73,23 @@ class Statistics:
         value = source.aggregate(value=Sum(volume_field))['value']
         return value if value else 0
 
+    def _basic_annotations(self, source):
+        return source.values('name') \
+                     .annotate(count=Count('name'),
+                               earliest=Min('workout__started'),
+                               latest=Max('workout__started')) \
+                     .order_by('-count')
+
     def _most_popular_gps_workouts(self, time_range) -> Iterable[PopularWorkout]:
         workouts = self._activities_in_range(Gpx.objects, time_range)
-
-        annotated = workouts.values('name') \
-                            .annotate(count=Count('name'),
-                                      earliest=Min('workout__started'),
-                                      latest=Max('workout__started')) \
-                            .order_by('-count')
-
-        def total_distance(workout_type):
-            meters = self._sum_volume(workouts.filter(name=workout_type), 'distance')
-            return units.Volume(meters=meters)
+        annotated = self._basic_annotations(workouts)
 
         def decorate_gps_workout(workout):
+            volume = self._sum_volume(workouts.filter(name=workout['name']), 'distance')
+
             return PopularWorkout(name=workout['name'],
                                   count=workout['count'],
-                                  volume=total_distance(workout['name']),
+                                  volume=units.Volume(meters=volume),
                                   earliest=workout['earliest'],
                                   latest=workout['latest'])
 
@@ -97,21 +97,14 @@ class Statistics:
 
     def _most_popular_strength_workouts(self, time_range) -> Iterable[PopularWorkout]:
         workouts = self._activities_in_range(Excercise.objects, time_range)
-
-        annotated = workouts.values('name') \
-                            .annotate(count=Count('name'),
-                                      earliest=Min('workout__started'),
-                                      latest=Max('workout__started')) \
-                            .order_by('-count')
-
-        def total_reps(excercise_name):
-            value = self._sum_volume(workouts.filter(name=excercise_name), 'reps__reps')
-            return units.Volume(reps=value)
+        annotated = self._basic_annotations(workouts)
 
         def decorate_strength_workout(workout):
+            volume = self._sum_volume(workouts.filter(name=workout['name']), 'reps__reps')
+
             return PopularWorkout(name=workout['name'],
                                   count=workout['count'],
-                                  volume=total_reps(workout['name']),
+                                  volume=units.Volume(reps=volume),
                                   earliest=workout['earliest'],
                                   latest=workout['latest'])
 
