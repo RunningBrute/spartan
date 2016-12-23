@@ -7,7 +7,7 @@ from unittest.mock import patch, Mock, PropertyMock
 from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
-from training import models, units
+from training import models, units, dates
 from training.tests import utils
 from training.tests.utils import time
 
@@ -185,8 +185,8 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         self.assertEqual(units.Volume(meters=8), popular[0].volume)
 
-        popular = statistics.most_popular_workouts(time(2016, 7, 1, 0, 0, 0),
-                                                   time(2016, 7, 30, 23, 59, 59))
+        popular = statistics.most_popular_workouts(dates.TimeRange(time(2016, 7, 1, 0, 0, 0),
+                                                                   time(2016, 7, 30, 23, 59, 59)))
 
         self.assertEqual(units.Volume(meters=4), popular[0].volume)
 
@@ -208,8 +208,8 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         self.assertEqual(units.Volume(reps=44), popular[0].volume)
 
-        popular = statistics.most_popular_workouts(time(2016, 7, 1, 0, 0, 0),
-                                                   time(2016, 7, 30, 23, 59, 59))
+        popular = statistics.most_popular_workouts(dates.TimeRange(time(2016, 7, 1, 0, 0, 0),
+                                                                   time(2016, 7, 30, 23, 59, 59)))
 
         self.assertEqual(1, popular[0].count)
         self.assertEqual(units.Volume(reps=22), popular[0].volume)

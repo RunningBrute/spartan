@@ -9,6 +9,9 @@ class TimeRange:
         self.start = start
         self.end = end
 
+    def fully_bound(self):
+        return None not in [self.start, self.end]
+
 
 def week_range(number=None, end=None, start=timezone.now()):
     if number is None and end is None:

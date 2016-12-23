@@ -59,12 +59,12 @@ class Statistics:
 
     def favourites_this_month(self, now=timezone.now()):
         months = list(dates.month_range(1, start=now))
-        return self.most_popular_workouts(*months[0])
+        return self.most_popular_workouts(dates.TimeRange(*months[0]))
 
     def _activities_in_range(self, source, time_range=None):
         source = source.filter(workout__user=self.user)
 
-        if None not in [time_range.start, time_range.end]:
+        if time_range is not None and time_range.fully_bound():
             source = source.filter(workout__started__gte=time_range.start, workout__started__lt=time_range.end)
 
         return source
@@ -75,9 +75,7 @@ class Statistics:
     def _strength_workouts(self, time_range):
         return self._activities_in_range(Excercise.objects, time_range)
 
-    def most_popular_workouts(self, time_begin=None, time_end=None) -> Iterable[PopularWorkout]:
-        time_range = dates.TimeRange(time_begin, time_end)
-
+    def most_popular_workouts(self, time_range=None) -> Iterable[PopularWorkout]:
         gps_workouts = self._gps_workouts(time_range) \
                            .values('activity_type') \
                            .annotate(count=Count('activity_type'),
