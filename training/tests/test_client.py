@@ -152,6 +152,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self._import_gpx('3p_cycling.gpx')
 
         pushups = self._strength_workout('push-up', [2, 4, 8])
+        more_pushups = self._strength_workout('push-up', [1])
 
         statistics = self._get_statistics_from_dashboard()
         excercises = statistics.most_popular_workouts()
@@ -162,16 +163,16 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(time(2016, 7, 30, 6, 22, 5), excercises[0]['earliest'])
         self.assertEqual(time(2016, 8, 30, 6, 22, 5), excercises[0]['latest'])
 
-        self.assertEqual('cycling', excercises[1]['name'])
-        self.assertEqual(1, excercises[1]['count'])
-        self.assertEqual(units.Volume(meters=4), excercises[1]['volume'])
-        self.assertEqual(time(2016, 6, 30, 6, 22, 5), excercises[1]['earliest'])
+        self.assertEqual('push-up', excercises[1]['name'])
+        self.assertEqual(2, excercises[1]['count'])
+        self.assertEqual(units.Volume(reps=15), excercises[1]['volume'])
+        self.assertEqual(pushups.started, excercises[1]['earliest'])
+        self.assertEqual(more_pushups.started, excercises[1]['latest'])
 
-        self.assertEqual('push-up', excercises[2]['name'])
+        self.assertEqual('cycling', excercises[2]['name'])
         self.assertEqual(1, excercises[2]['count'])
-        self.assertEqual(units.Volume(reps=14), excercises[2]['volume'])
-        self.assertEqual(pushups.started, excercises[2]['earliest'])
-        self.assertEqual(pushups.started, excercises[2]['latest'])
+        self.assertEqual(units.Volume(meters=4), excercises[2]['volume'])
+        self.assertEqual(time(2016, 6, 30, 6, 22, 5), excercises[2]['earliest'])
 
     def test_most_popular_gps_workouts_during_timespan(self):
         self._login()
