@@ -23,7 +23,7 @@ class Workout(models.Model):
     finished = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
-        return "{} at {}".format(self.workout_type, self.started)
+        return "{} at {} by {}".format(self.workout_type, self.started, self.user)
 
     def is_gpx(self):
         return len(self.gpx_set.all()) > 0
