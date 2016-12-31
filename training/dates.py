@@ -48,3 +48,8 @@ def month_range(number=None, end=None, start=timezone.now()):
             number -= 1
             if number <= 0:
                 break
+
+
+def this_month(now=timezone.now()):
+    months = list(month_range(1, start=now))
+    return TimeRange(*months[0])

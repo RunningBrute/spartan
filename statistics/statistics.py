@@ -58,8 +58,7 @@ class Statistics:
         self.user = user
 
     def favourites_this_month(self, now=timezone.now()):
-        months = list(dates.month_range(1, start=now))
-        return self.most_popular_workouts(dates.TimeRange(*months[0]))
+        return self.most_popular_workouts(dates.this_month(now))
 
     def _activities_in_range(self, source, time_range=None):
         source = source.filter(workout__user=self.user)
