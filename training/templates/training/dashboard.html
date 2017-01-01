@@ -21,7 +21,7 @@
         <dl class="metric">
             <dt>{{ goal.name }}</dt>
             <dd>{{ goal.left }}</dd>
-            <dd><div class="percent-bar"><div style="width: {{ goal.percent }}%"> </div></div></dd>
+            <dd><div class="percent-bar {{ goal.forecast.name }}"><div style="width: {{ goal.percent }}%"> </div></div></dd>
         </dl>
     {% empty %}
         <p class="note">You have no goals defined, go ahead and add some.</p>
