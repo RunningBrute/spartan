@@ -7,6 +7,11 @@ from training import dates
 from .utils import time
 
 
+FIRST_JAN_2016 = time(2016, 1, 1, 0, 0, 0)
+TENTH_JAN_2016 = time(2016, 1, 10, 0, 0, 0)
+LAST_JAN_2016 = time(2016, 1, 31, 23, 59, 59, 999999)
+
+
 class UtilsTestCase(TestCase):
     def test_week_range(self):
         weeks = list(dates.week_range(start=time(2016, 8, 7, 0, 0, 0),
@@ -38,10 +43,8 @@ class UtilsTestCase(TestCase):
         self.assertEqual((time(2015, 12, 1, 0, 0, 0), time(2015, 12, 31, 23, 59, 59, 999999)), months[2])
 
     def test_month_range_by_limit(self):
-        months = list(dates.month_range(start=time(2016, 8, 1, 0, 0, 0), number=3))
+        months = list(dates.month_range(start=FIRST_JAN_2016, number=3))
         self.assertEqual(3, len(months))
 
     def test_this_month(self):
-        now = time(2016, 1, 10, 0, 0, 0)
-
-        self.assertEqual(dates.TimeRange(time(2016, 1, 1, 0, 0, 0), time(2016, 1, 31, 23, 59, 59, 999999)), dates.this_month(now=now))
+        self.assertEqual(dates.TimeRange(FIRST_JAN_2016, LAST_JAN_2016), dates.this_month(now=TENTH_JAN_2016))
