@@ -19,7 +19,11 @@ class TimeRange:
         return None not in [self.start, self.end]
 
     def progress(self, date):
-        return 0
+        s = self.start.toordinal()
+        e = self.end.toordinal()
+        d = date.toordinal()
+
+        return round((d - s) / (e - s) * 100)
 
 
 def week_range(number=None, end=None, start=timezone.now()):
