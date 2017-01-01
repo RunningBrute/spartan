@@ -9,6 +9,12 @@ class TimeRange:
         self.start = start
         self.end = end
 
+    def __str__(self) -> str:
+        return "{} - {}".format(self.start, self.end)
+
+    def __eq__(self, other):
+        return (self.start, self.end) == (other.start, other.end)
+
     def fully_bound(self):
         return None not in [self.start, self.end]
 

@@ -40,3 +40,8 @@ class UtilsTestCase(TestCase):
     def test_month_range_by_limit(self):
         months = list(dates.month_range(start=time(2016, 8, 1, 0, 0, 0), number=3))
         self.assertEqual(3, len(months))
+
+    def test_this_month(self):
+        now = time(2016, 1, 10, 0, 0, 0)
+
+        self.assertEqual(dates.TimeRange(time(2016, 1, 1, 0, 0, 0), time(2016, 1, 31, 23, 59, 59, 999999)), dates.this_month(now=now))
