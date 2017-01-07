@@ -34,7 +34,6 @@ activityMap.renderMap = function(target, layer) {
     var osmLayer = new ol.layer.Tile({source: new ol.source.OSM()});
 
     var map = new ol.Map({
-            renderer: 'webgl',
             layers: [osmLayer, layer],
             target: target
         });
