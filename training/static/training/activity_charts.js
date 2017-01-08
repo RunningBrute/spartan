@@ -36,22 +36,13 @@ function get_single_intervals_time(points, time_data, interval_length_in_m)
 
     for (i = 1; i < coordinates.length; i++)
     {
-        lat1 = coordinates[i-1][0];
-        lon1 = coordinates[i-1][1];
-        lat2 = coordinates[i][0];
-        lon2 = coordinates[i][1];
+        lat1 = points[i-1].lat;
+        lon1 = points[i-1].lon;
+        lat2 = points[i].lat;
+        lon2 = points[i].lon;
 
-	    if (distt < interval_length_in_m)
-	    {
-	        distt = distt + activityChart.distance(lat2, lon2, lat1, lon1);
-	        time = time + (time_data[i] - time_data[i-1]);
-	    }
-	    else
-	    {
-            intervals_time.push(time);
-	        distt = 0;
-	        time = 0;
-	    }
+        distance = activityChart.distance(lat2, lon2, lat1, lon1);
+        time = points[i].time - points[i-1].time;
     }
 
     return intervals_time;
@@ -91,10 +82,31 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
     avg_hr_data = [];
     avg_cad_data = [];
 
-    var single_km_times = get_single_intervals_time(points, time_data, 1000);
+    var datasets = [];
 
     if (average_hr)
     {
+        datasets = datasets.concat(
+            [
+            {
+                borderColor: "rgba(153, 0, 0, 0.8)",
+                backgroundColor: "rgba(153, 0, 0, 0.1)",
+                label: "HR",
+                fill: false,
+                cubicInterpolationMode: "monotone",
+                pointRadius: 0,
+                data: hr_data
+            },
+            {
+                borderColor: "rgba(153, 0, 0, 0.4)",
+                backgroundColor: "rgba(153, 0, 0, 0)",
+                label: "Avg HR",
+                fill: false,
+                pointRadius: 0,
+                data: avg_hr_data
+            }
+            ]);
+
         avg_hr_data = new Array(hr_data.length);
         avg_hr_data.fill(average_hr);
     }
@@ -103,48 +115,32 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
     {
         avg_cad_data = new Array(cad_data.length);
         avg_cad_data.fill(average_cad);
-    }
 
-    if (average_hr)
-    {
-        ctx = $(charts_id);
-        chart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: time_data,
-                datasets: [{
-                    borderColor: "rgba(153, 0, 0, 0.8)",
-                    backgroundColor: "rgba(153, 0, 0, 0.1)",
-                    label: "HR",
-                    fill: true,
-                    cubicInterpolationMode: "monotone",
-                    pointRadius: 0,
-                    data: hr_data
-                },
-                {
-                    borderColor: "rgba(153, 0, 0, 0.4)",
-                    backgroundColor: "rgba(153, 0, 0, 0)",
-                    label: "Avg HR",
-                    fill: false,
-                    pointRadius: 0,
-                    data: avg_hr_data
-                },
+        datasets = datasets.concat(
+            [
                 {
                     borderColor: "rgba(0, 76, 153, 0.8)",
-                    backgroundColor: "rgba(0, 76, 153, 0.1)",
                     label: "Cadence",
-                    fill: true,
+                    fill: false,
                     pointRadius: 0,
                     data: cad_data
                 },
                 {
                     borderColor: "rgba(0, 76, 153, 0.4)",
-                    backgroundColor: "rgba(0, 76, 153, 0)",
                     label: "Avg cadence",
                     fill: false,
                     pointRadius: 0,
                     data: avg_cad_data
-                }]
+                },
+            ]);
+    }
+
+        ctx = $(charts_id);
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: time_data,
+                datasets: datasets
             },
             options: {
                 scales: {
@@ -169,105 +165,4 @@ function render_charts(charts_id, pace1_id, pace2_id, points, average_hr, averag
                 }
             }
         });
-
-    }
-
-    single_km_times = single_km_times.map(function (time){ return time / 60; });
-
-    km_ids = [];
-
-    for (i = 0; i < single_km_times.length; i++)
-    {
-        km_ids.push (i + 1);
-    }
-
-    var min_y = activityChart.minMax(single_km_times)[0];
-    var max_y = activityChart.minMax(single_km_times)[1];
-
-    scale = 0.05;
-
-    min_y = min_y - scale * min_y;
-    max_y = max_y + scale * max_y;
-
-    var pace_options= {};
-
-    pace_options.scales.yAxes[0].gridLines.color = "rgba(207, 74, 8, 0.1)";
-    pace_options.scales.yAxes[0].ticks.max = max_y;
-    pace_options.scales.yAxes[0].ticks.mim = min_y;
-    pace_options.scales.xAxes[0].gridLines.color = "rgba(207, 74, 8, 0.1)";
-    pace_options.scales.xAxes[0].ticks.maxTicksLimit = 15;
-    pace_options.scales.xAxes[0].ticks.minRotation = 0;
-    pace_options.scales.xAxes[0].ticks.maxRotation = 0;
-/*
-    var pace_options =
-    {
-        scales:
-        {
-            yAxes:
-            [{
-                gridLines: { color: "rgba(207, 74, 8, 0.1)" },
-                ticks: { max: max_y, min: min_y }
-            }],
-            xAxes:
-            [{
-                gridLines: { color: "rgba(207, 74, 8, 0.1)" },
-			    ticks: { maxTicksLimit: 15, minRotation: 0, maxRotation: 0 }
-            }]
-        }
-    };
-*/
-    ctx = $(pace1_id);
-    pace1_chart = new Chart(ctx,
-    {
-        type: "bar",
-        data:
-        {
-            labels: km_ids,
-            datasets:
-            [{
-                borderWidth: 1,
-                label: "Pace",
-                fill: true,
-                data: single_km_times
-            }]
-		},
-		options: pace_options
-    });
-
-    var points_num = 1;
-    var single_km_times_2 = get_single_intervals_time(points, time_data, 500);
-
-    single_km_times_2 = single_km_times_2.map(function (time){ return time / 60; });
-    km_ids_2 = [];
-
-    for (i = 0; i < single_km_times_2.length; i++)
-    {
-        km_ids_2.push (i + 1);
-    }
-
-    var min_y = minMax(single_km_times_2)[0];
-    var max_y = minMax(single_km_times_2)[1];
-
-    min_y = min_y - scale * min_y;
-    max_y = max_y + scale * max_y;
-
-    pace_options.scales.yAxes[0].ticks.max = max_y;
-    pace_options.scales.yAxes[0].ticks.min = min_y;
-
-    ctx = $(pace2_id);
-    pace2_chart = new Chart(ctx,
-    {
-        type: "line",
-        data:
-        {
-            labels: km_ids_2,
-            datasets:
-            [{
-                label: "Pace",
-                fill: true,
-                data: single_km_times_2
-            }]
-		},
-		options: pace_options
-    });
 }
