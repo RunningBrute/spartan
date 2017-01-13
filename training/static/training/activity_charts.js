@@ -37,8 +37,8 @@ activityCharts.render = function(charts_id, points)
         return data.length > 0 && data[0] != null;
     };
 
-    var hr_data = points.map(function (point){ return point.hr; });
-    var cad_data = points.map(function (point){ return point.cad; });
+    var hr_data = points.map(function(point) { return point.hr; });
+    var cad_data = points.map(function(point) { return point.cad; });
 
     var time_data = points.map(function (point)
     {
