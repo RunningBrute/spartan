@@ -12,6 +12,21 @@ activityCharts.setGlobalSettings = function()
     Chart.defaults.global.elements.line.backgroundColor = 'rgba(207, 74, 8, 0.05)';
     Chart.defaults.global.legend.display = true;
     Chart.defaults.global.legend.position = "right";
+
+    Chart.defaults.global.hover.intersect = false;
+
+    Chart.defaults.global.tooltips.mode = 'index';
+    Chart.defaults.global.tooltips.intersect = false;
+    Chart.defaults.global.tooltips.multiKeyBackground = 'black';
+
+    Chart.defaults.global.tooltips.filter = function(tooltipItem, data) {
+        var label = data.datasets[tooltipItem.datasetIndex].label || '';
+        return label.indexOf('AVG') == -1;
+    };
+
+    Chart.defaults.global.tooltips.callbacks.title = function(tooltipItem, data) {
+        return '';
+    };
 }
 
 activityCharts.render = function(charts_id, points)
