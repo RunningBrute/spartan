@@ -40,8 +40,7 @@
 
         activityMap.renderMap('map', activityMap.makeGpsLayer(points));
 
-        render_charts('#charts', '#pace1', '#pace2', points,
-                      {{ gpx.average_hr|default_if_none:'null' }}, {{ gpx.average_cad|default_if_none:'null' }});
+        activityCharts.render('#charts', points);
     });
 </script>
 
