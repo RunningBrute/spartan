@@ -62,12 +62,22 @@ class WorkoutStatistics:
     def __init__(self, user, name):
         self.user = user
         self.name = name
+        self._source = Excercise.objects.filter(workout__user=user, name=name)
+        self._aggregations = self._basic_aggregations()
+
+    def _basic_aggregations(self):
+        return self._source.aggregate(count=Count('name'),
+                                      earliest=Min('workout__started'),
+                                      latest=Max('workout__started'))
 
     @property
     def volume(self):
-        excercises = Excercise.objects.filter(name=self.name)
-        volume = _sum_volume(excercises, 'reps__reps')
+        volume = _sum_volume(self._source, 'reps__reps')
         return units.Volume(reps=volume)
+
+    @property
+    def count(self):
+        return self._aggregations['count']
 
 
 class Statistics:

@@ -42,11 +42,13 @@ class StatisticsTestCase(TestCase):
 
     def test_strength_workout_statistics(self):
         self._create_workout(self.user, {'push-up': [10, 10]})
+        self._create_workout(self.other_user, {'push-up': [1]})
 
         workout_statistics = self.statistics.workout_statistics('push-up')
 
         self.assertEqual('push-up', workout_statistics.name)
         self.assertEqual(units.Volume(reps=20), workout_statistics.volume)
+        self.assertEqual(1, workout_statistics.count)
 
     def test_weeks(self):
         models.Workout.objects.create(user=self.user,
