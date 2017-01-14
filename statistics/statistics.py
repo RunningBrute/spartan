@@ -53,9 +53,29 @@ class Week:
 PopularWorkout = collections.namedtuple('PopularWorkout', ['name', 'count', 'volume', 'earliest', 'latest'])
 
 
+def _sum_volume(source, volume_field):
+    value = source.aggregate(value=Sum(volume_field))['value']
+    return value if value else 0
+
+
+class WorkoutStatistics:
+    def __init__(self, user, name):
+        self.user = user
+        self.name = name
+
+    @property
+    def volume(self):
+        excercises = Excercise.objects.filter(name=self.name)
+        volume = _sum_volume(excercises, 'reps__reps')
+        return units.Volume(reps=volume)
+
+
 class Statistics:
     def __init__(self, user):
         self.user = user
+
+    def workout_statistics(self, name):
+        return WorkoutStatistics(self.user, name)
 
     def favourites_this_month(self, now=timezone.now()):
         return self.most_popular_workouts(dates.this_month(now))
@@ -67,10 +87,6 @@ class Statistics:
             source = source.filter(workout__started__gte=time_range.start, workout__started__lt=time_range.end)
 
         return source
-
-    def _sum_volume(self, source, volume_field):
-        value = source.aggregate(value=Sum(volume_field))['value']
-        return value if value else 0
 
     def _basic_annotations(self, source):
         return source.values('name') \
@@ -84,7 +100,7 @@ class Statistics:
         annotated = self._basic_annotations(workouts)
 
         def decorate_gps_workout(workout):
-            volume = self._sum_volume(workouts.filter(name=workout['name']), 'distance')
+            volume = _sum_volume(workouts.filter(name=workout['name']), 'distance')
 
             return PopularWorkout(name=workout['name'],
                                   count=workout['count'],
@@ -99,7 +115,7 @@ class Statistics:
         annotated = self._basic_annotations(workouts)
 
         def decorate_strength_workout(workout):
-            volume = self._sum_volume(workouts.filter(name=workout['name']), 'reps__reps')
+            volume = _sum_volume(workouts.filter(name=workout['name']), 'reps__reps')
 
             return PopularWorkout(name=workout['name'],
                                   count=workout['count'],

@@ -10,6 +10,10 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 
 
+FIRST_SEPT_2016 = datetime.datetime(2016, 9, 1, 0, 0, 0, tzinfo=pytz.utc)
+SECOND_SEPT_2016 = datetime.datetime(2016, 9, 2, 0, 0, 0, tzinfo=pytz.utc)
+
+
 class StatisticsTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='jacob',
@@ -22,9 +26,31 @@ class StatisticsTestCase(TestCase):
 
         self.statistics = statistics.Statistics(self.user)
 
+    def _create_workout(self, user, stuff):
+        '''
+        usage: _create_excercises({'push-up': [10, 10], 'sit-up': [5, 5, 5]})
+        '''
+
+        workout = models.Workout.objects.create(user=user,
+                                                started=FIRST_SEPT_2016, finished=SECOND_SEPT_2016)
+
+        for name, series in stuff.items():
+            excercise = workout.excercise_set.create(name=name)
+
+            for reps in series:
+                excercise.reps_set.create(reps=reps)
+
+    def test_strength_workout_statistics(self):
+        self._create_workout(self.user, {'push-up': [10, 10]})
+
+        workout_statistics = self.statistics.workout_statistics('push-up')
+
+        self.assertEqual('push-up', workout_statistics.name)
+        self.assertEqual(units.Volume(reps=20), workout_statistics.volume)
+
     def test_weeks(self):
         models.Workout.objects.create(user=self.user,
-                                      started=datetime.datetime(2016, 9, 1, 0, 0, 0, tzinfo=pytz.utc),
+                                      started=FIRST_SEPT_2016,
                                       finished=datetime.datetime(2016, 9, 1, 0, 0, 1, tzinfo=pytz.utc))
 
         weeks = self.statistics.weeks(start=datetime.datetime(2016, 9, 4, 23, 59, 59))
