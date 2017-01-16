@@ -41,7 +41,7 @@ class StatisticsTestCase(TestCase):
                 excercise.reps_set.create(reps=reps)
 
     def test_strength_workout_statistics(self):
-        self._create_workout(self.user, {'push-up': [10, 10]})
+        self._create_workout(self.user, {'push-up': [8, 12]})
         self._create_workout(self.other_user, {'push-up': [1]})
 
         workout_statistics = self.statistics.workout_statistics('push-up')
@@ -49,6 +49,8 @@ class StatisticsTestCase(TestCase):
         self.assertEqual('push-up', workout_statistics.name)
         self.assertEqual(units.Volume(reps=20), workout_statistics.volume)
         self.assertEqual(1, workout_statistics.count)
+        self.assertEqual(FIRST_SEPT_2016, workout_statistics.earliest)
+        self.assertEqual(10, workout_statistics.average_reps)
 
     def test_weeks(self):
         models.Workout.objects.create(user=self.user,

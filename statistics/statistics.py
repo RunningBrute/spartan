@@ -70,6 +70,12 @@ class WorkoutStatistics:
                                       earliest=Min('workout__started'),
                                       latest=Max('workout__started'))
 
+    def _aggregate(self, **kwargs):
+        '''
+        django can't do multiple aggregation in one expression
+        '''
+        return self._source.aggregate(**kwargs)
+
     @property
     def volume(self):
         volume = _sum_volume(self._source, 'reps__reps')
@@ -78,6 +84,14 @@ class WorkoutStatistics:
     @property
     def count(self):
         return self._aggregations['count']
+
+    @property
+    def earliest(self):
+        return self._aggregations['earliest']
+
+    @property
+    def average_reps(self):
+        return self._aggregate(value=Avg('reps__reps'))['value']
 
 
 class Statistics:
