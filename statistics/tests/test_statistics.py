@@ -8,6 +8,7 @@ from statistics import goals
 
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
+from django.http import Http404
 
 
 FIRST_SEPT_2016 = datetime.datetime(2016, 9, 1, 0, 0, 0, tzinfo=pytz.utc)
@@ -51,6 +52,10 @@ class StatisticsTestCase(TestCase):
         self.assertEqual(1, workout_statistics.count)
         self.assertEqual(FIRST_SEPT_2016, workout_statistics.earliest)
         self.assertEqual(10, workout_statistics.average_reps)
+
+    def test_throw_when_workout_statistics_not_found(self):
+        with self.assertRaises(Http404):
+            self.statistics.workout_statistics('dupa')
 
     def test_weeks(self):
         models.Workout.objects.create(user=self.user,

@@ -6,6 +6,7 @@ from typing import Iterable
 
 from django.db.models import Sum, Min, Max
 from django.utils import timezone
+from django.http import Http404
 
 from training.models import *
 from training import units
@@ -64,6 +65,9 @@ class WorkoutStatistics:
         self.name = name
         self._source = Excercise.objects.filter(workout__user=user, name=name)
         self._aggregations = self._basic_aggregations()
+
+        if self._aggregations['count'] == 0:
+            raise Http404('no workouts of this type')
 
     def _basic_aggregations(self):
         return self._source.aggregate(count=Count('name'),
