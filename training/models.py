@@ -76,6 +76,9 @@ class Workout(models.Model):
         else:
             return units.Volume(reps=self._total_reps() or 0)
 
+    class Meta:
+        ordering = ['-started']
+
 
 class Excercise(models.Model):
     def total_reps(self):
