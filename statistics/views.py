@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import *
 
-from .statistics import Statistics
+from .statistics import Statistics, WorkoutStatistics
 from .goals import Goals
 
 
@@ -13,6 +13,12 @@ def statistics(request):
 @login_required
 def statistics_this_month(request):
     return render(request, 'statistics/statistics_this_month.html', {'statistics': Statistics(request.user)})
+
+
+@login_required
+def workout(request, name):
+    workout = WorkoutStatistics(request.user, name)
+    return render(request, 'statistics/workout.html', {'workout': workout})
 
 
 @login_required
