@@ -17,7 +17,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         super(utils.ClientTestCase, self).setUp()
         self.user = User.objects.create_user(username='grzegorz', email='', password='z')
 
-    def _expect_workout_page(self, workout_id, status_code=200):
+    def _view_workout(self, workout_id, status_code=200):
         return self.get('/workout/{}'.format(workout_id), status_code=status_code)
 
     def _login(self):
@@ -25,7 +25,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
     def _start_workout(self):
         workout = self.get('/strength/start_workout').context['workout']
-        self._expect_workout_page(workout.id)
+        self._view_workout(workout.id)
         return workout
 
     def _get_statistics_from_dashboard(self):
@@ -37,7 +37,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
 
         self.post('/delete_workout/{}/'.format(workout.id))
 
-        self._expect_workout_page(workout.id, status_code=404)
+        self._view_workout(workout.id, status_code=404)
 
     def _strength_workout(self, name, series):
         workout = self._start_workout()
