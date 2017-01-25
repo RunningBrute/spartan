@@ -12,7 +12,7 @@ from django.utils import timezone
 
 import gpxpy
 
-from . import models
+from training import models
 
 class WorkoutAlreadyExists(Exception):
     pass

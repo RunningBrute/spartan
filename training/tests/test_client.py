@@ -102,7 +102,7 @@ class ClienStrengthTestCase(utils.ClientTestCase):
     def _import_gpx(self, filename):
         path = os.path.join(utils.GPX_DIR, filename)
         with open(path, 'r') as f:
-            self.post('/upload_gpx/', {'gpxfile': f})
+            self.post('/gps/upload_gpx/', {'gpxfile': f})
 
     def _get_latest_workout_from_dashboard(self):
         statistics = self._get_statistics_from_dashboard()
@@ -270,16 +270,16 @@ class ClienStrengthTestCase(utils.ClientTestCase):
             endomondo.return_value = endomondo_mock
             endomondo.return_value.token = 'token'
 
-            key = self.get('/endomondo/').context['key']
+            key = self.get('/gps/endomondo/').context['key']
             self.assertIsNone(key)
 
-            self.post('/endomondo/', {'email': 'legan@com.pl', 'password': 'haslo'})
+            self.post('/gps/endomondo/', {'email': 'legan@com.pl', 'password': 'haslo'})
             endomondo.assert_called_with(email='legan@com.pl', password='haslo')
 
-            key = self.get('/endomondo/').context['key']
+            key = self.get('/gps/endomondo/').context['key']
             self.assertEqual('token', key.key)
 
-            key = self.get('/disconnect_endomondo/').context['key']
+            key = self.get('/gps/disconnect_endomondo/').context['key']
             self.assertIsNone(key)
 
     def test_import_from_endomondo_no_workouts(self):
@@ -289,10 +289,10 @@ class ClienStrengthTestCase(utils.ClientTestCase):
             endomondo.return_value = Mock()
             endomondo.return_value.token = 'token'
 
-            self.post('/endomondo/', {'email': 'legan@com.pl', 'password': 'haslo'})
+            self.post('/gps/endomondo/', {'email': 'legan@com.pl', 'password': 'haslo'})
 
             endomondo.return_value.fetch.return_value = []
-            self.get('/synchronize_endomondo_ajax/')
+            self.get('/gps/synchronize_endomondo_ajax/')
 
             endomondo.return_value.fetch.assert_called_once_with(max_results=10, before=None, after=None)
 
