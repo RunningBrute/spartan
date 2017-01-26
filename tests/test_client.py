@@ -196,12 +196,12 @@ class ClienStrengthTestCase(ClientTestCase):
     def test_most_popular_workouts_this_month(self):
         statistics = self._get_statistics_from_dashboard()
 
-        workout = self._do_some_pushups([5, 10, 7])
+        workout = self._strength_workout('push-up', [5, 10, 7])
         workout.started = time(2016, 7, 1, 0, 0, 0)
         workout.finished = time(2016, 7, 1, 0, 0, 1)
         workout.save()
 
-        workout = self._do_some_pushups([5, 10, 7])
+        workout = self._strength_workout('push-up', [5, 10, 7])
         workout.started = time(2016, 8, 1, 0, 0, 0)
         workout.finished = time(2016, 8, 1, 0, 0, 1)
         workout.save()
