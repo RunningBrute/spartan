@@ -2,6 +2,7 @@ import os
 import pytz
 import datetime
 
+from django.contrib.auth.models import User
 from django.test import Client, TestCase
 
 
@@ -15,6 +16,9 @@ def time(y, month, d, h=0, m=0, s=0, ms=0):
 class ClientTestCase(TestCase):
     def setUp(self):
         self.client = Client()
+        self.user = User.objects.create_user(username='grzegorz', email='', password='z')
+
+        self.post('/login/', {'username': 'grzegorz', 'password': 'z'})
 
     def get(self, uri, status_code=200):
         response = self.client.get(uri, follow=True)

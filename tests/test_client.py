@@ -5,24 +5,16 @@ import unittest.mock
 from unittest.mock import patch, Mock, PropertyMock
 
 from django.test import Client, TestCase
-from django.contrib.auth.models import User
 
 from training import models, units, dates
 
-from tests.utils import time
+from tests.utils import time, ClientTestCase
 from tests import utils
 
 
-class ClienStrengthTestCase(utils.ClientTestCase):
-    def setUp(self):
-        super(utils.ClientTestCase, self).setUp()
-        self.user = User.objects.create_user(username='grzegorz', email='', password='z')
-
+class ClienStrengthTestCase(ClientTestCase):
     def _view_workout(self, workout_id, status_code=200):
         return self.get('/workout/{}'.format(workout_id), status_code=status_code)
-
-    def _login(self):
-        self.post('/login/', {'username': 'grzegorz', 'password': 'z'})
 
     def _start_workout(self):
         workout = self.get('/strength/start_workout').context['workout']
@@ -33,7 +25,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         return self.get('/dashboard').context['statistics']
 
     def test_create_workout_and_delete_it(self):
-        self._login()
         workout = self._start_workout()
 
         self.post('/delete_workout/{}/'.format(workout.id))
@@ -56,7 +47,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         return self._strength_workout('push-up', series)
 
     def test_add_some_excercises_and_reps(self):
-        self._login()
         self._start_workout()
 
         statistics = self._get_statistics_from_dashboard()
@@ -94,7 +84,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertIsNotNone(workout.finished)
 
     def test_finish_workout_without_any_excercise(self):
-        self._login()
         workout = self._start_workout()
 
         with self.assertRaises(Exception):
@@ -111,8 +100,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         return statistics.previous_workouts()[0]
 
     def test_gpx_import(self):
-        self._login()
-
         self._import_gpx('3p_simplest.gpx')
 
         workout = self._get_latest_workout_from_dashboard()
@@ -131,21 +118,16 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(name, workout.workout_type)
 
     def test_import_activity_type_from_gpx(self):
-        self._login()
-
         self._import_gpx_and_check_activity_type('3p_cycling.gpx', 'cycling')
         self._import_gpx_and_check_activity_type('3p_simplest.gpx', 'running')
 
     def test_strength_workout_type_when_starting_workout(self):
-        self._login()
         self._start_workout()
 
         workout = self._get_latest_workout_from_dashboard()
         self.assertEqual('strength', workout.workout_type)
 
     def test_most_popular_excercises(self):
-        self._login()
-
         self._import_gpx('3p_simplest.gpx')
         self._import_gpx('3p_simplest_2.gpx')
         self._import_gpx('running_no_points.gpx')
@@ -176,7 +158,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(time(2016, 6, 30, 6, 22, 5), excercises[2].earliest)
 
     def test_most_popular_gps_workouts_during_timespan(self):
-        self._login()
         statistics = self._get_statistics_from_dashboard()
 
         self._import_gpx('3p_simplest.gpx')
@@ -192,7 +173,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(units.Volume(meters=4), popular[0].volume)
 
     def test_most_popular_strength_workouts_during_timespan(self):
-        self._login()
         statistics = self._get_statistics_from_dashboard()
 
         workout = self._strength_workout('push-up', [5, 10, 7])
@@ -216,7 +196,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(units.Volume(reps=22), popular[0].volume)
 
     def test_most_popular_workouts_this_month(self):
-        self._login()
         statistics = self._get_statistics_from_dashboard()
 
         workout = self._do_some_pushups([5, 10, 7])
@@ -245,8 +224,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual(units.Volume(reps=22), month[1].volume)
 
     def test_most_common_reps(self):
-        self._login()
-
         statistics = self._get_statistics_from_dashboard()
 
         self.assertEqual([], list(statistics.most_common_reps()))
@@ -264,8 +241,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 1], list(statistics.most_common_reps()))
 
     def test_connect_to_endomondo(self):
-        self._login()
-
         with patch('endoapi.endomondo.Endomondo') as endomondo:
             endomondo_mock = Mock()
             endomondo.return_value = endomondo_mock
@@ -284,8 +259,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
             self.assertIsNone(key)
 
     def test_import_from_endomondo_no_workouts(self):
-        self._login()
-
         with patch('endoapi.endomondo.Endomondo', autospec=True) as endomondo:
             endomondo.return_value = Mock()
             endomondo.return_value.token = 'token'
@@ -301,8 +274,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
             self.assertEqual(0, len(statistics.previous_workouts()))
 
     def test_user_profile(self):
-        self._login()
-
         with self.assertRaises(Exception):
             self.user.userprofile
 
@@ -310,8 +281,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.get('/user_profile')
 
     def test_saving_timezone(self):
-        self._login()
-
         self.post('/user_profile', {'timezone': 'Europe/Warsaw'})
         profile = models.UserProfile.objects.get(user=self.user)
         self.assertEqual('Europe/Warsaw', profile.timezone)
@@ -324,8 +293,6 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual('Europe/Lisbon', form.initial['timezone'])
 
     def test_saving_invalid_timezone_falls_back_to_utc(self):
-        self._login()
-
         self.post('/user_profile', {'timezone': 'invalid'})
         profile = models.UserProfile.objects.get(user=self.user)
         self.assertEqual('UTC', profile.timezone)
@@ -334,5 +301,4 @@ class ClienStrengthTestCase(utils.ClientTestCase):
         self.assertEqual('UTC', form.initial['timezone'])
 
     def test_showing_empty_explorer_page(self):
-        self._login()
         self.get('/explorer')
