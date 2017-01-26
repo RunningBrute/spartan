@@ -19,8 +19,8 @@ urlpatterns = [
 
     url('^statistics/', include('statistics.urls')),
 
-    url('^strength/', include('strength.urls')),
-    url('^gps/', include('gps.urls')),
+    url('^strength/', include('activities.strength.urls')),
+    url('^gps/', include('activities.gps.urls')),
 
     url('^dashboard$', views.dashboard, name='dashboard'),
     url('^delete_workout/(?P<workout_id>[0-9]+)/$', views.delete_workout, name='delete_workout'),
