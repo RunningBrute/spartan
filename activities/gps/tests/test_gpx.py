@@ -10,7 +10,7 @@ from django.test import TestCase, RequestFactory
 
 from .. import gpx
 from training import models
-from training.tests import utils
+from tests import utils
 
 
 class GpxTestCase(TestCase):

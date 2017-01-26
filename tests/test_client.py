@@ -8,8 +8,9 @@ from django.test import Client, TestCase
 from django.contrib.auth.models import User
 
 from training import models, units, dates
-from training.tests import utils
-from training.tests.utils import time
+
+from tests.utils import time
+from tests import utils
 
 
 class ClienStrengthTestCase(utils.ClientTestCase):

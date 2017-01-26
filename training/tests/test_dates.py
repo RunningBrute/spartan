@@ -4,7 +4,7 @@ import datetime
 from django.test import TestCase, RequestFactory
 
 from training import dates
-from .utils import time
+from tests.utils import time
 
 
 FIRST_JAN_2016 = time(2016, 1, 1, 0, 0, 0)
