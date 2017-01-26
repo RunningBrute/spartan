@@ -4,8 +4,6 @@ import pytz
 import unittest.mock
 from unittest.mock import patch, Mock, PropertyMock
 
-from django.test import Client, TestCase
-
 from training import models, units, dates
 
 from tests.utils import time, ClientTestCase
@@ -105,8 +103,8 @@ class ClienStrengthTestCase(ClientTestCase):
         workout = self._get_latest_workout_from_dashboard()
 
         self.assertTrue(workout.is_gpx());
-        self.assertEqual(datetime.datetime(2016, 7, 30, 6, 22, 5, tzinfo=pytz.utc), workout.started)
-        self.assertEqual(datetime.datetime(2016, 7, 30, 6, 22, 7, tzinfo=pytz.utc), workout.finished)
+        self.assertEqual(time(2016, 7, 30, 6, 22, 5), workout.started)
+        self.assertEqual(time(2016, 7, 30, 6, 22, 7), workout.finished)
 
         gpx_workout = workout.gpx_set.get()
         self.assertEqual("running", gpx_workout.name)
@@ -240,6 +238,9 @@ class ClienStrengthTestCase(ClientTestCase):
         self._do_some_pushups([1, 1, 1])
         self.assertEqual([11, 10, 9, 8, 7, 6, 5, 4, 3, 1], list(statistics.most_common_reps()))
 
+    def test_showing_empty_explorer_page(self):
+        self.get('/explorer')
+
     def test_connect_to_endomondo(self):
         with patch('endoapi.endomondo.Endomondo') as endomondo:
             endomondo_mock = Mock()
@@ -273,6 +274,8 @@ class ClienStrengthTestCase(ClientTestCase):
             statistics = self._get_statistics_from_dashboard()
             self.assertEqual(0, len(statistics.previous_workouts()))
 
+
+class UserProfileTestCase(ClientTestCase):
     def test_user_profile(self):
         with self.assertRaises(Exception):
             self.user.userprofile
@@ -299,6 +302,3 @@ class ClienStrengthTestCase(ClientTestCase):
 
         form = self.get('/user_profile').context['form']
         self.assertEqual('UTC', form.initial['timezone'])
-
-    def test_showing_empty_explorer_page(self):
-        self.get('/explorer')
