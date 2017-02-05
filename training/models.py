@@ -16,14 +16,14 @@ class Workout(models.Model):
 
     @property
     def workout_type(self):
-        from_gpx = list(map(lambda x: x.activity_type.lower(), self.gpx_set.all()))
+        from_gpx = list(map(lambda x: x.name.lower(), self.gpx_set.all()))
         return from_gpx[0] if len(from_gpx) > 0 else 'strength'
 
     started = models.DateTimeField(null=True, default=None)
     finished = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
-        return "{} at {}".format(self.workout_type, self.started)
+        return "{} at {} by {}".format(self.workout_type, self.started, self.user)
 
     def is_gpx(self):
         return len(self.gpx_set.all()) > 0
@@ -76,6 +76,9 @@ class Workout(models.Model):
         else:
             return units.Volume(reps=self._total_reps() or 0)
 
+    class Meta:
+        ordering = ['-started']
+
 
 class Excercise(models.Model):
     def total_reps(self):
@@ -114,12 +117,13 @@ class SportField(models.CharField):
         super(SportField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
-        return super(SportField, self).get_prep_value(value).lower()
+        v = super(SportField, self).get_prep_value(value)
+        return v.lower() if v else None
 
 
 class Gpx(models.Model):
     workout = models.ForeignKey(Workout)
-    activity_type = SportField(max_length=20)
+    name = SportField(max_length=20)
     distance = models.IntegerField(null=True, default=None)
 
     def points_as_json(self):

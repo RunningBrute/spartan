@@ -10,6 +10,8 @@ def mpkm_from_mps(m_per_s):
 def km_from_m(m):
     if m is None:
         return None
+    elif m > 100000:
+        return '{}km'.format(round(m / 1000))
     elif m > 999:
         return '{0:.2f}km'.format(round(m / 1000, 2))
     else:
@@ -17,29 +19,36 @@ def km_from_m(m):
 
 
 class Volume:
-    def __init__(self, reps:int=None, meters:int=None):
-        self.reps = reps
-        self.meters = meters
-
-        if not self._valid():
-            raise ValueError("one of reps or meters must be set")
+    def __init__(self, reps:int=None, meters:int=None) -> None:
+        self.distance = meters is not None
+        self.multiplier = 1000 if self.distance else 1
+        self.value = meters if self.distance else reps
 
     def __str__(self):
-        if self.reps is not None:
-            return str(self.reps)
+        if self.distance:
+            return km_from_m(self.value)
         else:
-            return km_from_m(self.meters)
+            return str(self.value)
 
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.reps == other.reps and self.meters == other.meters
+        return self.value == other.value
 
     def __add__(self, other):
-        if self.reps is not None:
-            return Volume(reps=self.reps + other.reps)
-        else:
-            return Volume(meters=self.meters + other.meters)
+        return self._make_new(self.value + other.value)
 
-    def _valid(self):
-        return (self.reps is None) != (self.meters is None)
+    def left_to(self, goal: int) -> str:
+        new = goal * self.multiplier - self.value
+        val = self._make_new(abs(new))
+
+        if new > 0:
+            return "{} left".format(val)
+        else:
+            return "done"
+
+    def number(self):
+        return self.value / self.multiplier
+
+    def _make_new(self, value):
+        return Volume(meters=value) if self.distance else Volume(reps=value)

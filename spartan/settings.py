@@ -15,6 +15,9 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = (
     'training',
+    'statistics',
+    'activities.strength',
+    'activities.gps',
     'nested_inline',
     'django.contrib.admin',
     'django.contrib.auth',

@@ -8,12 +8,6 @@ class UnitsTestCase(TestCase):
         units.Volume(reps=10)
         units.Volume(meters=10)
 
-        with self.assertRaises(ValueError):
-            units.Volume()
-
-        with self.assertRaises(ValueError):
-            units.Volume(reps=10, meters=10)
-
     def test_str(self):
         self.assertEqual("1", str(units.Volume(reps=1)))
         self.assertEqual("999m", str(units.Volume(meters=999)))

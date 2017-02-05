@@ -4,6 +4,28 @@ import datetime
 from django.utils import timezone
 
 
+class TimeRange:
+    def __init__(self, start, end) -> None:
+        self.start = start
+        self.end = end
+
+    def __str__(self) -> str:
+        return "{} - {}".format(self.start, self.end)
+
+    def __eq__(self, other):
+        return (self.start, self.end) == (other.start, other.end)
+
+    def fully_bound(self):
+        return None not in [self.start, self.end]
+
+    def progress(self, date):
+        s = self.start.toordinal()
+        e = self.end.toordinal()
+        d = date.toordinal()
+
+        return round((d - s) / (e - s) * 100)
+
+
 def week_range(number=None, end=None, start=timezone.now()):
     if number is None and end is None:
         raise AttributeError("number or end parameter must be provided")
@@ -39,3 +61,8 @@ def month_range(number=None, end=None, start=timezone.now()):
             number -= 1
             if number <= 0:
                 break
+
+
+def this_month(now=timezone.now()):
+    months = list(month_range(1, start=now))
+    return TimeRange(*months[0])

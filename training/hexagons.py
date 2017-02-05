@@ -1,66 +1,47 @@
-from math import sqrt
+from math import sqrt, floor
 
 
-SQRT_3 = 1.7320508075688772
+_SQRT_3 = sqrt(3)
+_SQRT_3_DIV_3 = _SQRT_3 / 3
 
-HEXAGON_SIZE = 100
-HEXAGON_WIDTH = HEXAGON_SIZE * 2
-HEXAGON_HEIGHT = SQRT_3 / 2 * HEXAGON_WIDTH
+S = 100
+W = S * 2
+H = _SQRT_3 / 2 * W
 
-
-def hex_to_pixel(h):
-    q, r = h
-    x = HEXAGON_SIZE * 3/2 * q
-    y = HEXAGON_SIZE * SQRT_3 * (r + q/2)
-    return x, y
+_S_MUL_3 = S * 3
+_S_MUL_SQRT_3 = S * _SQRT_3
+_TWO_DIV_S = 2/S
 
 
-def cube_to_hex(h): # axial
-    x, _, z = h
-    q = x
-    r = z
-    return q, r
+def point_to_hexagon(point):
+    x, y = point
 
-
-def hex_to_cube(h): # axial
-    q, r = h
-    x = q
-    z = r
+    x = x / 3
+    z = (-x + _SQRT_3_DIV_3 * y) / S
+    x = x * _TWO_DIV_S
     y = -x-z
-    return (x, y, z)
-
-
-def cube_round(h):
-    x, y, z = h
 
     rx = round(x)
     ry = round(y)
     rz = round(z)
 
-    x_diff = abs(rx - x)
-    y_diff = abs(ry - y)
-    z_diff = abs(rz - z)
+    xd = abs(rx - x)
+    yd = abs(ry - y)
+    zd = abs(rz - z)
 
-    if x_diff > y_diff and x_diff > z_diff:
+    if xd > yd and xd > zd:
         rx = -ry-rz
-    elif y_diff > z_diff:
-        ry = -rx-rz
+    elif yd > zd:
+        pass
     else:
         rz = -rx-ry
 
-    return rx, ry, rz
+    rx = rx / 2
+    y = _S_MUL_SQRT_3 * (rz + rx)
+    x = _S_MUL_3 * rx
+
+    return x, y
 
 
-def hex_round(h):
-    return cube_to_hex(cube_round(hex_to_cube(h)))
-
-
-def pixel_to_hex(point):
-    x, y = point
-    q = x * 2/3 / HEXAGON_SIZE
-    r = (-x / 3 + SQRT_3 / 3 * y) / HEXAGON_SIZE
-    return hex_round((q, r))
-
-
-def point_to_hexagon(point):
-    return hex_to_pixel(pixel_to_hex(point))
+def points_to_hexagon(points):
+    return [point_to_hexagon(p) for p in points]

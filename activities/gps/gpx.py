@@ -12,7 +12,7 @@ from django.utils import timezone
 
 import gpxpy
 
-from . import models
+from training import models
 
 class WorkoutAlreadyExists(Exception):
     pass
@@ -46,8 +46,8 @@ def save_gpx(user, content):
                                             finished=finished)
 
     gpx = models.Gpx.objects.create(workout=workout,
-                                    activity_type = parsed.tracks[0].type,
-                                    distance = int(parsed.length_2d()))
+                                    name=parsed.tracks[0].type,
+                                    distance=int(parsed.length_2d()))
 
     for track in parsed.tracks:
         for segment in track.segments:
@@ -70,7 +70,7 @@ def _import_endomondo_workout(user, endomondo_workout):
                                            endomondo_id=endomondo_workout.id)
 
     gpx = models.Gpx.objects.create(workout=workout,
-                                    activity_type=endomondo_workout.sport,
+                                    name=endomondo_workout.sport,
                                     distance=endomondo_workout.distance)
 
     for point in endomondo_workout.points:
@@ -141,4 +141,4 @@ def purge_endomondo_workouts(user):
 
 
 def workout_types(user):
-    return set(models.Gpx.objects.filter(workout__user=user).values_list('activity_type', flat=True))
+    return set(models.Gpx.objects.filter(workout__user=user).values_list('name', flat=True))

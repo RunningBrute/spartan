@@ -34,6 +34,7 @@ activityMap.renderMap = function(target, layer) {
     var osmLayer = new ol.layer.Tile({source: new ol.source.OSM()});
 
     var map = new ol.Map({
+            controls: ol.control.defaults().extend([new ol.control.FullScreen()]),
             layers: [osmLayer, layer],
             target: target
         });
